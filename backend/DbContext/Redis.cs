@@ -10,5 +10,3 @@ public class Redis {
         _Connection = ConnectionMultiplexer.Connect(DbContext._RedistUrl);
     }
 }
-
-

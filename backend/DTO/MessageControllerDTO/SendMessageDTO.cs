@@ -2,15 +2,12 @@ using System.Text.Json.Serialization;
 
 public class SendMessageDTO {
     
-    [JsonPropertyName("TimeStamp")]
-    public required string? TimeStamp { get; set; }
-
     [JsonPropertyName("SenderId")]
-    public required string? SenderId { get; set; }
+    public string? SenderId { get; set; } = string.Empty;
 
-    [JsonPropertyName("ListOfReceiverId")]
-    public List<string>? ListOfReceiverId { get; set; } = new List<string>();
+    [JsonPropertyName("ReceiverId")]
+    public string? ReceiverId { get; set; } = string.Empty;
 
-    [JsonPropertyName("Message")]
-    public required string? Message { get; set; }
+    [JsonPropertyName("Content")]
+    public string? Content { get; set; } = string.Empty;
 }

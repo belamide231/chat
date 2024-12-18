@@ -14,16 +14,20 @@ public class WebSocketClients {
         _AccountManagers = new ConcurrentDictionary<string, ConcurrentDictionary<string, WebSocket>>();
     }
 
-    public async Task SendMessageWebSocket(string Role, string ConversationId, MessageSchema Message) {
 
-        if(Role == "AccountManager") {
+    /* Function ni siya na maka send ug message sa accounts. */
+    protected async Task SendMessageToAccounts(string ConversationId) {
 
-            
-
-        } else {
+    }
 
 
+    /* Function ni siya na maka send ug message sa user. */
+    protected async Task SendMessageToUser(string ConversationId) {
 
-        }
+    }
+
+    /* Function ni siya na maka send ug message sa client nga way account. */
+    protected async Task SendMessageToAnonymousClient(string ConversationId) {
+
     }
 }

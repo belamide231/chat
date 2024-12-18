@@ -5,15 +5,13 @@
 // dotnet add package Newtonsoft.Json
 
 
-using backend.Services;
 using backend.WebSockets;
-using AspNetCore.Identity.Mongo;
-using MongoDB.Bson;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Database;
 using Microsoft.AspNetCore.Authorization;
 using backend.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,12 +19,17 @@ var builder = WebApplication.CreateBuilder(args);
 // builder.WebHost.UseUrls("http://0.0.0.0:80"); http
 
 
+builder.Services.AddDbContext<InitialMigrations>(options =>
+    options.UseMySql(backend.Configurations.DbContext._MysqlMigrationsUrl,
+        new MySqlServerVersion(new Version(9, 1, 0))));
+
 
 builder.Services.AddSingleton<WebSocketClients>();
-builder.Services.AddSingleton<Mongo>();
+builder.Services.AddSingleton<Mysql>();
 builder.Services.AddSingleton<Redis>();
 builder.Services.AddTransient<IAuthorizationHandler, UserHandler>();
 builder.Services.AddTransient<MessageServices>();
+builder.Services.AddTransient<TestingServices>();
 builder.Services.AddCors(
     option => {
         option.AddPolicy("*", policy => {
@@ -37,17 +40,6 @@ builder.Services.AddCors(
     );
 });
 builder.Services.AddAuthorizationBuilder();
-builder.Services.AddIdentityCore<UserSchema>()
-                .AddRoles<RoleSchema>()
-                .AddMongoDbStores<UserSchema, RoleSchema, ObjectId>(
-                    option => {
-                        option.ConnectionString = "mongodb://localhost:27017/chat";
-                        option.UsersCollection = "UserCollection";
-                        option.RolesCollection = "RoleCollection";  
-                    })
-                .AddApiEndpoints()
-                .AddDefaultTokenProviders();
-builder.Services.AddScoped<UserManager<UserSchema>>();
 builder.Services.AddAuthentication(
     option => {
         option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -90,8 +82,8 @@ app.UseMiddleware<AuthenticationWebSocket>();
 
 
 // TESTING
-Console.WriteLine("User: " + JwtHelper.CreateToken("20210090", "User"));
-Console.WriteLine("AccountManager: " + JwtHelper.CreateToken("20210091", "AccountManager"));
+Console.WriteLine("User: " + JwtHelper.CreateToken("helsi", "User"));
+Console.WriteLine("AccountManager: " + JwtHelper.CreateToken("timoy", "AccountManager"));
 
 
 app.Run();

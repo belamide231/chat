@@ -1,111 +1,152 @@
-using backend.WebSockets;
 using Database;
-using MongoDB.Driver;
-using Pipelines.Sockets.Unofficial.Arenas;
-
-
-namespace backend.Services;
+using MySql.Data.MySqlClient;
 
 
 public class MessageServices : WebSocketClients {
-
-    private readonly Mongo _Mongo;
+    private readonly Mysql _Mysql;
     private readonly Redis _Redis;
-
-    public MessageServices(Mongo __Mongo, Redis __Redis) {
-        _Mongo = __Mongo;
+    public MessageServices(Mysql __Mysql, Redis __Redis) {
+        _Mysql = __Mysql;
         _Redis = __Redis;
     }
 
-    public async Task<object> SendMessage(SendMessageDTO Data, string Role) {
+    public class ConversationHeadsModel {
+        public int ChatmateId { get; set; }
+        public int Id { get; set; }
+        public DateTime SentAt { get; set; }
+        public bool ContentText { get; set; }
+        public bool ContentFile { get; set; }
+        public string Content { get; set; }
+        public int SenderId { get; set; }
+        public int ReceiverId { get; set; }
+        public bool ContentSeen { get; set; }
 
-        Data.ListOfReceiverId!.Add(Data.SenderId!);
-
-        var Conversations = await _Mongo.ConversationCollection().Find(
-            Builders<ConversationSchema>.Filter.And(
-                Builders<ConversationSchema>.Filter.All(x => x.ListOfChatmateId, Data.ListOfReceiverId),
-                Builders<ConversationSchema>.Filter.Eq(x => x.ListOfChatmateId, Data.ListOfReceiverId)
-            )
-        ).ToListAsync();
-        var ConversationId = "";
-
-        if(Conversations.Count == 0) {
-            
-            var NewConversation = new ConversationSchema(Data.ListOfReceiverId!);
-            ConversationId = NewConversation.Id;
-
-            try {
-
-                await _Mongo.ConversationCollection().InsertOneAsync(NewConversation);
-
-            } catch {
-
-                return new {
-
-                    Status = StatusCodes.Status500InternalServerError,
-                    Data = (object)null!
-                };
-            }
-
-        } else {
-
-            ConversationId = Conversations.FirstOrDefault()!.Id;
+        public ConversationHeadsModel(
+            int __ChatmateId, 
+            int __Id, 
+            DateTime __SentAt, 
+            bool __ContentText, 
+            bool __ContentFile, 
+            string __Content, 
+            int __SenderId, 
+            int __ReceiverId, 
+            bool __ContentSeen
+        ) {
+            ChatmateId = __ChatmateId;
+            Id = __Id;
+            SentAt = __SentAt;
+            ContentText = __ContentText;
+            ContentFile = __ContentFile;
+            Content = __Content;
+            SenderId = __SenderId;
+            ReceiverId = __ReceiverId;
+            ContentSeen = __ContentSeen;
         }
-
-        var Message = new MessageSchema(DateTime.UtcNow, Data.SenderId!, Data.Message!);
-
+    }
+    public async Task<object> GetConversationsHeadsService(string NameIdentifier) {
+        
         try {
 
-            var Result = await _Mongo.ConversationCollection().FindOneAndUpdateAsync(
-                Builders<ConversationSchema>.Filter.Eq(x => x.Id, ConversationId),
-                Builders<ConversationSchema>.Update.Push(x => x.ListOfMessages, Message)
-            );
+            var Connection = _Mysql.GetConnection();
+            var Command = new MySqlCommand($"CALL get_conversations_heads('{NameIdentifier}')", Connection);
+            var Reader = await Command.ExecuteReaderAsync();
+            var ConversationsHeadsList = new List<ConversationHeadsModel>();
 
-            _ = SendMessageWebSocket(Role, ConversationId, Message);
+            while (await Reader.ReadAsync()) 
+                ConversationsHeadsList.Add(new ConversationHeadsModel(
+                    Reader.GetInt32(0), 
+                    Reader.GetInt32(1), 
+                    Reader.GetDateTime(2), 
+                    Reader.GetBoolean(3), 
+                    Reader.GetBoolean(4), 
+                    Reader.GetString(5), 
+                    Reader.GetInt32(6), 
+                    Reader.GetInt32(7), 
+                    Reader.GetBoolean(8)
+                ));
 
             return new {
                 Status = StatusCodes.Status200OK,
-                Data = (object)null! // TEMPORARY
+                Data = ConversationsHeadsList
             };
-       
-        } catch {
+        
+        } catch (Exception ex) {
 
             return new {
                 Status = StatusCodes.Status500InternalServerError,
-                Data = (object)null!
+                Data = ex.Message
             };
         }
     }
 
-    public async Task<object> GetConversation(GetConversationDTO Data, string UserId) {
 
-        var ListOfChatmatesId = new List<string>(new [] { Data.ChatmateId, UserId });
+    public class MessageModel {
+        public int ChatmateId { get; set; }
+        public int Id { get; set; }
+        public DateTime SentAt { get; set; }
+        public bool ContentText { get; set; }
+        public bool ContentFile { get; set; }
+        public string? Content { get; set; }
+        public int SenderId { get; set; }
+        public int ReceiverId { get; set; }
+        public bool ContentSeen { get; set; }
+        public MessageModel (
+            int __ChatmateId, 
+            int __Id, 
+            DateTime __SentAt, 
+            bool __ContentText, 
+            bool __ContentFile, 
+            string __Content,
+            int __SenderId,
+            int __ReceiverId,
+            bool __ContentSeen
+        ) {
+            ChatmateId = __ChatmateId;
+            Id = __Id;
+            SentAt = __SentAt;
+            ContentText = __ContentText;
+            ContentFile = __ContentFile;
+            Content = __Content;
+            SenderId = __SenderId;
+            ReceiverId = __ReceiverId;
+            ContentSeen = __ContentSeen;
+        }
+    }
+    public async Task<object> GetConversationService(string NameIdentifier, GetConversationDTO Data) {
 
         try {
 
-            var Result = await _Mongo.ConversationCollection().Find(
-                Builders<ConversationSchema>.Filter.And(
-                    Builders<ConversationSchema>.Filter.All(x => x.ListOfChatmateId, ListOfChatmatesId),
-                    Builders<ConversationSchema>.Filter.Eq(x => x.ListOfChatmateId.Count, ListOfChatmatesId.Count)
-                )
-            ).Project<ConversationSchema>(
-                Builders<ConversationSchema>.Projection
-                    .Include(x => x.Id)
-                    .Include(x => x.LatestMessageSeen)
-                    .Slice(x => x.ListOfMessages, -30)
-            ).ToListAsync();
+            var Connection = _Mysql.GetConnection();
+            var Command = new MySqlCommand($"CALL get_conversation('{NameIdentifier}', '{Data.Chatmate}')", Connection);
+            var Reader = await Command.ExecuteReaderAsync();
+            var ConversationMessagesList = new List<MessageModel>();
+            
+            while (await Reader.ReadAsync())
+                ConversationMessagesList.Add(new MessageModel(
+                    Reader.GetInt32(0), 
+                    Reader.GetInt32(1), 
+                    Reader.GetDateTime(2),
+                    Reader.GetBoolean(3),
+                    Reader.GetBoolean(4),
+                    Reader.GetString(5),
+                    Reader.GetInt32(6),
+                    Reader.GetInt32(7),
+                    Reader.GetBoolean(8)
+                ));
 
             return new {
                 Status = StatusCodes.Status200OK,
-                Data = Result!  
+                Data = ConversationMessagesList
             };
-            
-        } catch {
+
+        } catch (Exception ex) {
 
             return new {
-                Status = StatusCodes.Status204NoContent,
-                Data = (object)null!  
+                Status = StatusCodes.Status500InternalServerError,
+                Data = ex.Message
             };
         }
     }
+
+
 }
