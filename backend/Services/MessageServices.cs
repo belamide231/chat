@@ -1,13 +1,16 @@
+using System.ComponentModel.DataAnnotations;
 using Database;
 using MySql.Data.MySqlClient;
 
 
-public class MessageServices : WebSocketClients {
+public class MessageServices {
     private readonly Mysql _Mysql;
     private readonly Redis _Redis;
-    public MessageServices(Mysql __Mysql, Redis __Redis) {
+    private WebSocketServer _WebSocketServer;
+    public MessageServices(Mysql __Mysql, Redis __Redis, WebSocketServer __WebSocketServer) {
         _Mysql = __Mysql;
         _Redis = __Redis;
+        _WebSocketServer = __WebSocketServer;
     }
 
     public class ConversationHeadsModel {
@@ -147,6 +150,24 @@ public class MessageServices : WebSocketClients {
             };
         }
     }
+    
 
+    public async Task<int> InsertMessageService(string NameIdentifier, InsertMessageDTO Data) {
 
+        try {
+
+            var Connection = _Mysql.GetConnection();
+            var Command = new MySqlCommand($"CALL insert_message(STR_TO_DATE('{Data.SentAt:MM/dd/yyyy hh:mm:ss tt}', '%m/%d/%Y %h:%i:%s %p'), '{Data.ContentText}', '{Data.ContentFile}', '{Data.Content}', '{NameIdentifier}', '{Data.Receiver}');", Connection);
+            var Reader = await Command.ExecuteReaderAsync();
+            await Reader.ReadAsync();
+
+            var Recepients = new List<string>(new [] { NameIdentifier, Reader.GetString(0) });
+            _ = Task.Run(async() => await _WebSocketServer.NotifyUserForNewMessage(Recepients, Reader.GetInt32(1)));
+            return StatusCodes.Status200OK;
+
+        } catch {
+
+            return StatusCodes.Status500InternalServerError;
+        }
+    }
 }

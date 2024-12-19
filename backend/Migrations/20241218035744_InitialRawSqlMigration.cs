@@ -11,8 +11,7 @@ namespace backend.Migrations
             migrationBuilder.Sql(@"
                 CREATE TABLE tbl_users (
                     id INT PRIMARY KEY AUTO_INCREMENT,
-                    user VARCHAR(20) UNIQUE,
-                    role VARCHAR(20),
+                    user VARCHAR(99) UNIQUE,
                     INDEX idx_user(user)
                 );
 
@@ -127,6 +126,14 @@ namespace backend.Migrations
                         OR 
                             (sender_id = @receiver_id AND receiver_id = @sender_id)
                     );
+
+                    SELECT 
+                        in_receiver AS receiver,
+                        id
+                    FROM tbl_messages
+                    WHERE 
+                        id = @new_message_id
+                    LIMIT 1;
 
                     IF @pre_message_id IS NOT NULL THEN 
                         UPDATE tbl_messages_head 
@@ -281,6 +288,45 @@ namespace backend.Migrations
                     SELECT *
                     FROM tbl_messages_head_logs
                     ORDER BY sent_at DESC;
+                END;
+
+                CREATE PROCEDURE get_message(IN in_user VARCHAR(199), IN in_id INT)
+                BEGIN
+
+                    CALL get_user_id(in_user, @user_id);
+                    SELECT @user_id;  
+
+                    WITH tbl_selected_message AS (
+                        SELECT 
+                        CASE
+                            WHEN sender_id != @user_id
+                            THEN sender_id
+                            ELSE receiver_id
+                        END AS chatmate_id,
+                        id,
+                        sent_at,
+                        content_text,
+                        content_file,
+                        content,
+                        sender_id,
+                        receiver_id,
+                        content_seen
+                        FROM tbl_messages
+                        WHERE 
+                        id = in_id
+                        LIMIT 1
+                    )
+                    SELECT
+                        t2.user,
+                        t1.id,
+                        t1.sent_at,
+                        t1.content_text,
+                        t1.content_file,
+                        t1.content,
+                        t1.content_seen
+                    FROM tbl_selected_message AS t1
+                    JOIN tbl_users AS t2
+                        ON t1.chatmate_id = t2.id;
                 END;
 
                 CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 5 SECOND), 1, 0, '1 HELLO WORLD!', 'timoy', 'helsi');

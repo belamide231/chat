@@ -13,19 +13,17 @@ public class MessageController : ControllerBase {
 
 
     [HttpPost("SendMessage")]
-    public async Task<IActionResult> SendMessage(SendMessageDTO Data) {
+    public async Task<IActionResult> SendMessage() {
         
         return Ok();
     }
 
 
-    [HttpPost("GetConversation")]
-    public async Task<IActionResult> GetConversation([FromBody] GetConversationDTO Data) {
+    [HttpPost("InsertMessageControl")]
+    public async Task<IActionResult> InsertMessageControl([FromBody] InsertMessageDTO Data) {
 
-        //dynamic Result = await _MessageServices.GetConversation(Data, User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        //return StatusCode(Result.Status, Result.Data);
-
-        return Ok();
+        int Result = await _MessageServices.InsertMessageService(User.FindFirstValue(ClaimTypes.NameIdentifier)!, Data);
+        return StatusCode(Result);
     }
 
 

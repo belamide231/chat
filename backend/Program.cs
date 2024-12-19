@@ -24,7 +24,8 @@ builder.Services.AddDbContext<InitialMigrations>(options =>
         new MySqlServerVersion(new Version(9, 1, 0))));
 
 
-builder.Services.AddSingleton<WebSocketClients>();
+var WebSocketServer = new WebSocketServer(); // HERE
+builder.Services.AddSingleton(WebSocketServer);
 builder.Services.AddSingleton<Mysql>();
 builder.Services.AddSingleton<Redis>();
 builder.Services.AddTransient<IAuthorizationHandler, UserHandler>();
@@ -78,7 +79,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.UseWebSockets();
-app.UseMiddleware<AuthenticationWebSocket>();
+app.UseMiddleware<WebSocketAuthorization>();
 
 
 // TESTING
