@@ -1,6 +1,7 @@
+-- MIGRATIONS
 CREATE TABLE tbl_users (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  user VARCHAR(20) UNIQUE,
+  user VARCHAR(99) UNIQUE,
   INDEX idx_user(user)
 );
 
@@ -90,7 +91,6 @@ BEGIN
     INSERT INTO tbl_users(user)
     VALUES 
       (in_sender);
-      
     SET @sender_id = LAST_INSERT_ID();
   END IF; 
   
@@ -99,7 +99,6 @@ BEGIN
     INSERT INTO tbl_users(user)
     VALUES 
       (in_receiver);
-      
     SET @receiver_id = LAST_INSERT_ID();
   END IF;
   
@@ -130,6 +129,14 @@ BEGIN
     OR 
       (sender_id = @receiver_id AND receiver_id = @sender_id)
   );
+  
+  SELECT 
+    in_receiver AS receiver,
+    id
+  FROM tbl_messages
+  WHERE 
+    id = @new_message_id
+  LIMIT 1;
 
   IF @pre_message_id IS NOT NULL 
   THEN 
@@ -345,53 +352,99 @@ BEGIN
 
 END $$
 
+
+CREATE PROCEDURE get_message(IN in_user VARCHAR(199), IN in_id INT)
+BEGIN
+
+  CALL get_user_id(in_user, @user_id);
+  SELECT @user_id;  
+
+  WITH tbl_selected_message AS (
+    SELECT 
+      CASE
+        WHEN sender_id != @user_id
+        THEN sender_id
+        ELSE receiver_id
+      END AS chatmate_id,
+      id,
+      sent_at,
+      content_text,
+      content_file,
+      content,
+      sender_id,
+      receiver_id,
+      content_seen
+    FROM tbl_messages
+    WHERE 
+      id = in_id
+    LIMIT 1
+  )
+  SELECT
+    t2.user,
+    t1.id,
+    t1.sent_at,
+    t1.content_text,
+    t1.content_file,
+    t1.content,
+    t1.content_seen
+  FROM tbl_selected_message AS t1
+  JOIN tbl_users AS t2
+    ON t1.chatmate_id = t2.id;
+
+END $$
+
+
 DELIMITER ;
 
 
 -- -- STORING MESSAGE
 CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 5 SECOND), 1, 0, "1 HELLO WORLD!", "timoy", "helsi");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 10 SECOND), 1, 0, "2 MERRY CHRISTMAS!", "timoy", "helsi");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 15 SECOND), 1, 0, "3 HAPPY NEW YEAR!", "bensoy", "timoy");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 20 SECOND), 1, 0, "4 PIT SENIOR!", "bensoy", "helsi");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 25 SECOND), 1, 0, "5 GOOD MORNING!", "timoy", "bensoy");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 30 SECOND), 1, 0, "6 HAPPY HOLIDAYS!", "bensoy", "timoy");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 35 SECOND), 1, 0, "7 WELCOME BACK!", "timoy", "helsi");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 40 SECOND), 1, 0, "8 CONGRATULATIONS!", "helsi", "bensoy");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 45 SECOND), 1, 0, "9 HAVE A GREAT DAY!", "bensoy", "timoy");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 50 SECOND), 1, 0, "10 GOOD NIGHT!", "helsi", "timoy");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 55 SECOND), 1, 0, "11 SEE YOU SOON!", "timoy", "bensoy");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 60 SECOND), 1, 0, "12 SAFE TRAVELS!", "bensoy", "helsi");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 65 SECOND), 1, 0, "13 STAY STRONG!", "helsi", "timoy");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 70 SECOND), 1, 0, "14 THANK YOU!", "timoy", "bensoy");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 75 SECOND), 1, 0, "15 C", "helsi", "helsi");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 80 SECOND), 1, 0, "16 C++", "helsi", "helsi");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 85 SECOND), 1, 0, "17 C#", "helsi", "helsi");
-CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 90 SECOND), 1, 0, "18 Java", "helsi", "helsi");
+
+CALL get_message("helsi", 1);
+
+
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 10 SECOND), 1, 0, "2 MERRY CHRISTMAS!", "timoy", "helsi");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 15 SECOND), 1, 0, "3 HAPPY NEW YEAR!", "bensoy", "timoy");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 20 SECOND), 1, 0, "4 PIT SENIOR!", "bensoy", "helsi");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 25 SECOND), 1, 0, "5 GOOD MORNING!", "timoy", "bensoy");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 30 SECOND), 1, 0, "6 HAPPY HOLIDAYS!", "bensoy", "timoy");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 35 SECOND), 1, 0, "7 WELCOME BACK!", "timoy", "helsi");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 40 SECOND), 1, 0, "8 CONGRATULATIONS!", "helsi", "bensoy");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 45 SECOND), 1, 0, "9 HAVE A GREAT DAY!", "bensoy", "timoy");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 50 SECOND), 1, 0, "10 GOOD NIGHT!", "helsi", "timoy");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 55 SECOND), 1, 0, "11 SEE YOU SOON!", "timoy", "bensoy");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 60 SECOND), 1, 0, "12 SAFE TRAVELS!", "bensoy", "helsi");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 65 SECOND), 1, 0, "13 STAY STRONG!", "helsi", "timoy");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 70 SECOND), 1, 0, "14 THANK YOU!", "timoy", "bensoy");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 75 SECOND), 1, 0, "15 C", "helsi", "helsi");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 80 SECOND), 1, 0, "16 C++", "helsi", "helsi");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 85 SECOND), 1, 0, "17 C#", "helsi", "helsi");
+-- CALL insert_message(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 90 SECOND), 1, 0, "18 Java", "helsi", "helsi");
 
 -- GETTING CONVERSATIONS HEAD
-SELECT "CHAT HOME" AS _;
-CALL get_conversations_heads("helsi");
+-- SELECT "CHAT HOME" AS _;
+-- CALL get_conversations_heads("helsi");
 
--- GETTING CONVERSATION
-SELECT "helsi & timoy" AS _;
-CALL get_conversation("helsi", "timoy");
+-- -- GETTING CONVERSATION
+-- SELECT "helsi & timoy" AS _;
+-- CALL get_conversation("helsi", "timoy");
 
--- RELOCATING CONVERSATION TO LOGS
-SELECT "relocating conversation to logs" AS _;
-CALL relocate_conversation("timoy", "helsi");
+-- -- RELOCATING CONVERSATION TO LOGS
+-- SELECT "relocating conversation to logs" AS _;
+-- CALL relocate_conversation("timoy", "helsi");
 
--- GETTING LOGS TO SPECIFIC CONVERSATION
-SELECT "conversation logs" AS _;
-CALL get_conversation_logs(1);
+-- -- GETTING LOGS TO SPECIFIC CONVERSATION
+-- SELECT "conversation logs" AS _;
+-- CALL get_conversation_logs(1);
 
--- GETTING ALL CONVERSATIONS HEAD LOGS
-SELECT "conversation heads" AS _;
-CALL get_conversations_heads_logs();
+-- -- GETTING ALL CONVERSATIONS HEAD LOGS
+-- SELECT "conversation heads" AS _;
+-- CALL get_conversations_heads_logs();
 
-SELECT * FROM tbl_users;
-SELECT * FROM tbl_messages;
-SELECT * FROM tbl_messages_head;
-SELECT * FROM tbl_messages_head_logs;
-SELECT * FROM tbl_messages_logs;
+-- SELECT * FROM tbl_users;
+-- SELECT * FROM tbl_messages;
+-- SELECT * FROM tbl_messages_head;
+-- SELECT * FROM tbl_messages_head_logs;
+-- SELECT * FROM tbl_messages_logs;
 
-SHOW PROCEDURE STATUS WHERE DB = DATABASE();
+-- SHOW PROCEDURE STATUS WHERE DB = DATABASE();
