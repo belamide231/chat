@@ -19,7 +19,7 @@ const getMysqlConnection = () => {
         //     queueLimit: 0
         // });
         const connectionInstance = mysql2_1.default.createPool({
-            uri: `${process.env.MYSQL_PUBLIC_URL}/${process.env.MYSQL_DATABASE}`,
+            uri: `${process.env.MYSQL_URL}/${process.env.MYSQL_DATABASE}`,
             database: process.env.DATABASE,
             waitForConnections: true,
             connectionLimit: 10,
