@@ -6,7 +6,6 @@
     "start": "node ./dist/app",
     "test": "node ./migrations/test",
     "build": "tsc",
-    "dev": "nodemon ./src/app.ts",
     "serve": "node ./src/app.ts",
     "migrations-up": "node ./migrations/migrations.js",
     "migrations-down": "node ./migrations/drop.js",
