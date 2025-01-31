@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.controller = void 0;
+const express_1 = require("express");
+const messageController_1 = require("./messageController");
+const accountController_1 = require("./accountController");
+const pageController_1 = require("./pageController");
+exports.controller = (0, express_1.Router)();
+exports.controller.use(messageController_1.messageController);
+exports.controller.use(accountController_1.accountController);
+exports.controller.use(pageController_1.pageController);
