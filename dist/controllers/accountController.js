@@ -37,7 +37,7 @@ exports.accountController.post('/logoutAccount', (req, res) => __awaiter(void 0,
     try {
         yield app_1.redis.db1.del(req.sessionID);
         res.clearCookie('rtk');
-        res.clearCookie('sid');
+        res.clearCookie('atk');
     }
     catch (_a) {
         return res.sendStatus(500);

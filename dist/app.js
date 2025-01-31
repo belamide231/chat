@@ -38,6 +38,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cookieOptions = exports.socketClients = exports.io = exports.chance = exports.redis = exports.mysql = void 0;
 const express_1 = __importStar(require("express"));
+const memorystore_1 = __importDefault(require("memorystore"));
 const express_session_1 = __importDefault(require("express-session"));
 const passport_1 = __importDefault(require("passport"));
 const cors_1 = __importDefault(require("cors"));
@@ -57,6 +58,7 @@ const connection_1 = require("./sockets/connection");
 exports.mysql = (0, mysql_1.getMysqlConnection)();
 exports.redis = new redis_1.getRedisConnection();
 const app = (0, express_1.default)();
+const store = (0, memorystore_1.default)(express_session_1.default);
 const server = http_1.default.createServer(app);
 exports.chance = new chance_1.default();
 exports.io = new socket_io_1.Server(server, {
@@ -87,8 +89,12 @@ app.use((0, cors_1.default)({
     origin: '*',
     credentials: true
 }));
+app.set("trust proxy", 1);
 app.use((0, express_session_1.default)({
     secret: process.env.SESSION_SECRET ? process.env.SESSION_SECRET : 'secret',
+    store: new store({
+        checkPeriod: 86400000
+    }),
     resave: false,
     saveUninitialized: true,
     cookie: {
