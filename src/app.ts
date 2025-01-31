@@ -1,4 +1,5 @@
 import express, { urlencoded, json, CookieOptions } from 'express';
+import MemoryStore from 'memorystore';
 import session from 'express-session';
 import passport from 'passport';
 import cors from 'cors';
@@ -23,6 +24,7 @@ export const mysql = getMysqlConnection();
 export const redis = new getRedisConnection();
 
 const app = express();
+const store = MemoryStore(session);
 const server = http.createServer(app);
 export const chance = new Chance();
 export const io = new Server(server, {
@@ -54,8 +56,12 @@ app.use(cors({
     origin: '*',
     credentials: true
 }));
+app.set("trust proxy", 1);
 app.use(session({ 
-    secret: process.env.SESSION_SECRET ? process.env.SESSION_SECRET : 'secret', 
+    secret: process.env.SESSION_SECRET ? process.env.SESSION_SECRET : 'secret',
+    store: new store({
+        checkPeriod: 86400000
+    }),
     resave: false, 
     saveUninitialized: true, 
     cookie: { 

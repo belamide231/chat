@@ -34,7 +34,7 @@ accountController.post('/logoutAccount', async (req: Request, res: Response): Pr
 
         await redis.db1.del(req.sessionID);
         res.clearCookie('rtk');
-        res.clearCookie('sid');
+        res.clearCookie('atk');
 
     } catch {
         
