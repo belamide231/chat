@@ -21,17 +21,24 @@ const startMigrations = async () => {
 
     try {
 
-        connectionInstance = mysql.createPool({
-            host: process.env.MYSQL_HOST,
-            user: process.env.MYSQL_USER,
-            password: process.env.MYSQL_PASSWORD,
+        // const connectionInstance = mysql.createPool({
+        //     host: 'localhost',
+        //     user: 'root',
+        //     password: 'belamide231',
+        //     waitForConnections: true,
+        //     connectionLimit: 10,
+        //     queueLimit: 0
+        // });
+
+        const connectionInstance = mysql.createPool({
+            uri: process.env.MYSQL_PUBLIC_URL,
             waitForConnections: true,
             connectionLimit: 10,
             queueLimit: 0
         });
 
-        await connectionInstance.promise().query("CREATE DATABASE IF NOT EXISTS chat;");
-        await connectionInstance.promise().query("USE chat;");
+        await connectionInstance.promise().query(`CREATE DATABASE IF NOT EXISTS ${process.env.MYSQL_DATABASE};`);
+        await connectionInstance.promise().query(`USE ${process.env.MYSQL_DATABASE};`);
         
         // TABLES
         await recursion(connectionInstance, fs.readFileSync(path.join(__dirname, 'tables.sql'), 'utf-8').split(';'));

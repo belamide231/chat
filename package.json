@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./dist/app",
+    "test": "node ./migrations/test",
     "build": "tsc",
     "dev": "nodemon ./src/app.ts",
     "serve": "node ./src/app.ts",
@@ -52,6 +53,7 @@
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0",
     "redis": "^4.7.0",
+    "sequelize": "^6.37.5",
     "socket.io": "^4.8.1",
     "umzug": "^3.8.2"
   },

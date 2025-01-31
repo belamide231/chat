@@ -6,19 +6,26 @@ const dropDatabase = async () => {
 
     try {
 
-        connectionInstance = mysql.createPool({
-            host: process.env.MYSQL_HOST,
-            user: process.env.MYSQL_USER,
-            password: process.env.MYSQL_PASSWORD,
+        // const connectionInstance = mysql.createPool({
+        //     host: 'localhost',
+        //     user: 'root',
+        //     password: 'belamide231',
+        //     waitForConnections: true,
+        //     connectionLimit: 10,
+        //     queueLimit: 0
+        // });
+
+        const connectionInstance = mysql.createPool({
+            uri: process.env.MYSQL_PUBLIC_URL,
             waitForConnections: true,
             connectionLimit: 10,
             queueLimit: 0
         });
 
-        await connectionInstance.promise().query("DROP DATABASE chat;");        
+        await connectionInstance.promise().query(`DROP DATABASE IF EXISTS ${process.env.MYSQL_DATABASE};`);                  
         await connectionInstance.end();
 
-        console.log("DATABASE DROP SUCCESS");
+        console.log("DATABASE DROPPED SUCCESSFULLY");
         process.exit();
 
     } catch (error) {
