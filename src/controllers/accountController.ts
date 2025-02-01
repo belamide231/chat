@@ -2,20 +2,13 @@ import { Router, Request, Response } from "express";
 import { loginAccountDto } from "../dto/accountController/loginAccountDto";
 import { createAccountDTO } from "../dto/accountController/createAccountDto";
 import { createAccountService, inviteToSignupService, loginAccountService } from "../services/accountServices";
-import { isInvited } from "../guards/isInvited";
 import { cookieOptions, redis } from "../app";
-import { isSignupValid } from "../guards/isSignupValid";
 import { inviteToSignupDto } from "../dto/accountController/inviteToSignupDto";
-import path from 'path';
 
 export const accountController = Router();
 
 accountController.post('/invite', async (req: Request, res: Response): Promise<any> => {
     return res.sendStatus(await inviteToSignupService(req.body as inviteToSignupDto));
-}).get('/invite', isInvited);
-
-accountController.get('/sign-up', isSignupValid, (_: Request, res: Response): any => {    
-    return res.status(200).sendFile(path.join(__dirname, '../testPages/signup.html'));
 });
 
 accountController.post('/loginAccount', async (req: Request, res: Response): Promise<any> => {
@@ -32,9 +25,8 @@ accountController.post('/logoutAccount', async (req: Request, res: Response): Pr
 
     try {
 
-        await redis.db1.del(req.sessionID);
-        res.clearCookie('rtk');
-        res.clearCookie('atk');
+        await redis.con.del(req.sessionID);
+        res.clearCookie('rtk').clearCookie('atk');
 
     } catch {
         

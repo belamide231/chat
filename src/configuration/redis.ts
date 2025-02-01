@@ -3,24 +3,25 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+
 export class getRedisConnection {
-  public db1: RedisClientType;
+    public con: RedisClientType;
 
-  constructor() {
-    const redisUrl = process.env.REDIS_URL;
+    constructor() {
 
-    this.db1 = createClient({ url: redisUrl });
-
-    this.initialize();
-  }
-
-  private async initialize() {
-    try {
-      await this.db1.connect();
-
-      console.log('REDIS IS READY');
-    } catch (err) {
-      console.error('Error connecting to Redis:', err);
+        this.con = createClient({ url: process.env.REDIS_URL });
+        this.initialize();
     }
-  }
+
+    private async initialize() {
+        try {
+
+            await this.con.connect();
+            console.log('REDIS IS READY');
+        } catch (error) {
+
+            console.log(error);
+            process.exit();
+        }
+    }
 }

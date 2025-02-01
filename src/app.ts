@@ -75,6 +75,7 @@ app.use(express.static(path.join(__dirname, '../public/browser')));
 
 io.on('connection', connection);
 
-const port = process.env.PORT;
-if(port) 
-    server.listen(port, () => console.log(`http://localhost:${port}`));
+(async () => {
+    if(mysql && await redis.con.ping()) 
+        server.listen(process.env.LOCAL ? 3000 : process.env.PORT, () => console.log(`RUNNING ON PORT: ${process.env.LOCAL ? '3000' : process.env.PORT}`));
+})();

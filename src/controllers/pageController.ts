@@ -3,19 +3,25 @@ import path from 'path';
 
 import { isAuthenticated } from "../guards/isAuthenticated";
 import { hasToken } from "../guards/hasToken";
+import { isSignupValid } from "../guards/isSignupValid";
+import { isInvited } from "../guards/isInvited";
 
 export const pageController = Router();
 
 pageController.get('/login', hasToken, (req: Request, res: Response): void => {
-    if(req.cookies['unauthorized']) {
-        res.clearCookie('unauthorized');
-        res.status(401).sendFile(path.join(__dirname, '../testPages/login.html'))
-    }
+    if(req.cookies['unauthorized'])
+        return res.clearCookie('unauthorized').status(401).sendFile(path.join(__dirname, '../testPages/login.html'));
         
     return res.sendFile(path.join(__dirname, '../testPages/login.html'));
 });
 
-pageController.get('/chat', isAuthenticated, (req: Request, res: Response): any => {
+pageController.get('/invite', isInvited);
+
+pageController.get('/sign-up', isSignupValid, (_: Request, res: Response): any => {    
+    return res.status(200).sendFile(path.join(__dirname, '../testPages/signup.html'));
+});
+
+pageController.get('/chat', isAuthenticated, (_: Request, res: Response): any => {
     return res.status(200).sendFile(path.join(__dirname, '../testPages/chat.html'));
 });
 

@@ -46,7 +46,7 @@ export const inviteToSignupService = async (data: inviteToSignupDto): Promise<nu
 
     try {
 
-        await redis.db1.del('db2:' + data.email);
+        await redis.con.del('db2:' + data.email);
         const sent = await nodeMailer(data.email, url);
 
         if(!sent) 

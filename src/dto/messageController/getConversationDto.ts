@@ -1,3 +1,4 @@
 export interface getConversationDto {
-    chatmateId: string;
+    messageLength: number;
+    chatmateId: number;
 }

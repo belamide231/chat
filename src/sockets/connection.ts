@@ -23,8 +23,7 @@ export const connection = async (socket: Socket): Promise<any> => {
     const id = client.sub;
 
     try {
-        // await redis.db4.set(id.toString(), client.sid, { EX: 60 * 60 });
-        await redis.db1.set('db4:' + id.toString(), client.sid, { EX: 60 * 60 });
+        await redis.con.set('db4:' + id.toString(), client.sid, { EX: 60 * 60 });
 
     } catch {
         return;
@@ -58,8 +57,7 @@ export const connection = async (socket: Socket): Promise<any> => {
             io.emit('disconnected');
 
             delete socketClients.clientConnections[id];
-            // await redis.db4.del(id.toString());
-            await redis.db1.del('db4:' + id.toString());
+            await redis.con.del('db4:' + id.toString());
 
             switch(client.role) {
                 case 'admin':

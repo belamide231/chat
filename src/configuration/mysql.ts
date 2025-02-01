@@ -10,29 +10,26 @@ export const getMysqlConnection = () => {
 
         let connectionInstance: Pool;
 
-        if(process.env.PORT) {
+        if(process.env.LOCAL) {
 
             connectionInstance = mysql.createPool({
-                uri: `${process.env.MYSQL_PUBLIC_URL}/${process.env.MYSQL_DATABASE}`,
-                database: process.env.DATABASE,
+                uri: 'mysql://root:belamide231@localhost:3306/railway',
                 waitForConnections: true,
                 connectionLimit: 10,
                 queueLimit: 0
-            });
-
+            });        
+    
         } else {
 
             connectionInstance = mysql.createPool({
-                uri: `${process.env.MYSQL_URL}/${process.env.MYSQL_DATABASE}`,
-                database: process.env.DATABASE,
+                uri: process.env.MYSQL_PUBLIC_URL,
                 waitForConnections: true,
                 connectionLimit: 10,
                 queueLimit: 0
-            });
+            });    
         }
 
         console.log("MYSQL IS READY");
-
         return connectionInstance;
 
     } catch(error) {

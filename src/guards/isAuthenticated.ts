@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { generateAccessToken, generateRefreshToken, verifyAccessToken, verifyRefreshToken } from "../utilities/jwt";
 import { cookieOptions, redis } from "../app";
 
-export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
+export const isAuthenticated = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
 
     const user: any = {};
     const atk = verifyAccessToken(req.cookies['atk']);
@@ -12,8 +12,11 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
         const rtk = verifyRefreshToken(req.cookies['rtk']);
         if(!rtk.token) {
 
-            res.clearCookie('atk');
-            res.clearCookie('rtk');
+            res.clearCookie('atk').clearCookie('rtk');
+
+            if(req.method === 'POST')
+                return res.sendStatus(401);
+
             res.cookie('unauthorized', true);
             return res.redirect('/login');
         }
@@ -40,7 +43,7 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
         
         try {
     
-            await redis.db1.set(sid, JSON.stringify(payload), { EX: 60 * 60 });
+            await redis.con.set(sid, JSON.stringify(payload), { EX: 60 * 60 });
     
         } catch {
 

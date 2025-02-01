@@ -4,9 +4,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./dist/app.js",
-    "test": "node ./migrations/test",
+    "dev": "nodemon ./src/app.ts",
     "build": "tsc",
     "serve": "node ./src/app.ts",
+    "connection-test": "node ./migrations/test",
     "migrations-up": "node ./migrations/migrations.js",
     "migrations-down": "node ./migrations/drop.js",
     "migrations-restart": "npm run migrations-down && npm run migrations-up"

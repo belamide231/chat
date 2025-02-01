@@ -2,26 +2,25 @@ import { mysql, socketClients, io, redis } from "../app";
 import { getConversationDto } from "../dto/messageController/getConversationDto";
 import { getMessageDto } from "../dto/messageController/getMessageDto";
 import { insertMessageDto } from "../dto/messageController/insertMessageDto";
-import { loadConversationDto } from "../dto/messageController/loadConversationDto";
-import { seenConversationDto } from "../dto/messageController/seenConversationDto";
+import { loadChatListDto } from "../dto/messageController/loadChatListDto";
+import { seenChatDto } from "../dto/messageController/seenChatDto";
 import { validContentType } from "../validations/validContentType";
 import { validRoles } from "../validations/validRoles";
 
 
 export const insertMessageService = async (data: insertMessageDto, senderId: number): Promise<number> => {
-
-    if(!data.receiverId || !validContentType.includes(data.contentType!) || !data.content)
+    if(isNaN(data.receiverId) || !validContentType.includes(data.contentType!) || !data.content)
         return 401;
 
     try {
 
-        const result = (await mysql.promise().query('CALL insert_message(?, ?, ?, ?)', [data.contentType, data.content, senderId, data.receiverId]) as any)[0][0][0];
+        const result = (await mysql.promise().query('CALL insert_message(?, ?, ?, ?, ?)', [null, data.contentType, data.content, senderId, data.receiverId]) as any)[0][0][0];
 
         let socketIds: string[] = [];
         socketIds = socketIds.concat(socketClients.clientConnections[senderId]);
         socketIds = socketIds.concat(socketClients.clientConnections[data.receiverId!]);
 
-        socketIds.forEach(async (v) => await io.to(v).emit('newmessage', JSON.stringify({ receiverId: result.receiver_id, messageId: result.message_id })));
+        socketIds.forEach((v) => io.to(v).emit('newmessage', JSON.stringify({ receiverId: result.receiver_id, messageId: result.message_id })));
 
         return 200;
 
@@ -32,10 +31,8 @@ export const insertMessageService = async (data: insertMessageDto, senderId: num
 }
 
 export const getActiveClientsService = async (role: string): Promise<{ status: number, result: object | null }> => {
-    console.log(role);
-
     if(!validRoles.includes(role))
-        return { status: 401, result: null };
+        return { status: 400, result: null };
 
     let actives: any = [];
     switch(role) {
@@ -57,8 +54,7 @@ export const getActiveClientsService = async (role: string): Promise<{ status: n
     if(actives.length === 0) 
         return { status: 200, result: [] };
 
-    // const result = await redis.db4.mGet([...actives.map(String)]);
-    const result = await redis.db1.mGet([...actives.map((v: any) => 'db4:' + v.toString())]);
+    const result = await redis.con.mGet([...actives.map((v: any) => 'db4:' + v.toString())]);
     const sids = result.map((v: any) => {
         if(v !== null) 
             return v.toString();
@@ -67,7 +63,7 @@ export const getActiveClientsService = async (role: string): Promise<{ status: n
     if(sids.length === 0)
         return { status: 200, result: [] };
 
-    const data = await redis.db1.mGet([...sids]);
+    const data = await redis.con.mGet([...sids]);
     const json = data.map(v => {
         if(v !== null)
             return JSON.parse(v);
@@ -79,11 +75,14 @@ export const getActiveClientsService = async (role: string): Promise<{ status: n
     return { status: 200, result: json };
 }
 
-export const getConversationsHeadsService = async (id: number): Promise<{ status: number, result: object | null }> => {
+export const loadChatListServices = async (id: number, data: loadChatListDto): Promise<{ status: number, result: object | null }> => {
+    if(isNaN(data.chatListLength))
+        return { status: 400, result: null };
 
     try {
 
-        const result = (await mysql.promise().query('CALL get_conversations_heads(?)', [id]) as any);
+        const result = (await mysql.promise().query('CALL get_chat_list(?, ?)', [data.chatListLength, id]) as any)[0];
+        result.pop();
         return { status: 200, result: result };
 
     } catch(error) {
@@ -92,10 +91,9 @@ export const getConversationsHeadsService = async (id: number): Promise<{ status
     }
 }
 
-export const getMessageService = async (data: getMessageDto, userId: number): Promise<{ status: number, result: object | null }> => {
-    
-    if(!data.messageId)
-        return { status: 401, result: null };
+export const loadMessageService = async (data: getMessageDto, userId: number): Promise<{ status: number, result: object | null }> => {
+    if(isNaN(data.messageId))
+        return { status: 400, result: null };
 
     try {
 
@@ -108,16 +106,13 @@ export const getMessageService = async (data: getMessageDto, userId: number): Pr
     }
 }
 
-export const getConversationService = async (userId: number, data: getConversationDto): Promise<{ status: number, result: object | null }> => {
-
-    console.log(!data.chatmateId);
-
-    if(!data.chatmateId)
-        return { status: 401, result: null };
+export const loadMessagesService = async (userId: number, data: getConversationDto): Promise<{ status: number, result: object | null }> => {
+    if(isNaN(data.chatmateId) || isNaN(data.messageLength))
+        return { status: 400, result: null };
 
     try {
 
-        const result = (await mysql.promise().query('CALL get_conversation(?, ?)', [userId, data.chatmateId]) as any)[0][0];
+        const result = (await mysql.promise().query('CALL load_messages(?, ?, ?, ?)', [data.messageLength, userId, data.chatmateId, 15]) as any)[0][0];
         return { status: 200, result: result };
 
     } catch {
@@ -126,31 +121,13 @@ export const getConversationService = async (userId: number, data: getConversati
     }
 }
 
-export const loadConversationService = async (userId: number, data: loadConversationDto): Promise<{ status: number, result: object | null }> => {
-
-    if(!data.chatmateId || !data.messageLength)
-        return { status: 401, result: null };
-
-    try {
-
-        const result = (await mysql.promise().query('CALL load_messages(?, ?, ?)', [data.messageLength, userId, data.chatmateId]) as any)[0][0];
-        console.log(result);
-
-        return { status: 200, result: result }
-    } catch {
-
-        return { status: 500, result: null };
-    }
-}
-
-export const seenConversationService = async (userId: number, data: seenConversationDto): Promise<number> => {
-
-    if(!data.chatmateId)
-        return 401;
+export const seenChatService = async (userId: number, data: seenChatDto): Promise<number> => {
+    if(isNaN(data.chatmateId))
+        return 400;
 
     try {
 
-        await mysql.promise().query('CALL seen_conversation(?, ?)', [userId, data.chatmateId]);
+        await mysql.promise().query('CALL seen_chat(?, ?)', [userId, data.chatmateId]);
         return 200;
 
     } catch {
