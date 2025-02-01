@@ -83,10 +83,8 @@ export const getConversationsHeadsService = async (id: number): Promise<{ status
 
     try {
 
-        const result = (await mysql.promise().query('CALL get_conversations_heads(?)', [id]) as any)[0];
-        const custom = result[0].map((v: any) => [v]);
-        custom[0] = result[1];
-        return { status: 200, result: custom as object };
+        const result = (await mysql.promise().query('CALL get_conversations_heads(?)', [id]) as any);
+        return { status: 200, result: result };
 
     } catch(error) {
 
