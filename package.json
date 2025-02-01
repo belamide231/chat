@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node ./dist/app.js",
+    "start": "npm run build && node ./dist/app.js",
     "dev": "nodemon ./src/app.ts",
     "build": "tsc",
     "serve": "node ./src/app.ts",
-    "connection-test": "node ./migrations/test",
-    "migrations-up": "node ./migrations/migrations.js",
-    "migrations-down": "node ./migrations/drop.js",
+    "connection-test": "node ./migrations/connection-test.js",
+    "migrations-up": "node ./migrations/migrations-up.js",
+    "migrations-down": "node ./migrations/migrations-down.js",
     "migrations-restart": "npm run migrations-down && npm run migrations-up"
   },
   "keywords": [],

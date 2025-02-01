@@ -9,7 +9,7 @@ export class getRedisConnection {
 
     constructor() {
 
-        this.con = createClient({ url: process.env.REDIS_URL });
+        this.con = createClient({ url: process.env.LOCAL ? 'redis://localhost:6379' : process.env.REDIS_URL });
         this.initialize();
     }
 

@@ -5,25 +5,12 @@ dotenv.config();
 const test = async () => {
     try {
 
-        if(process.env.LOCAL) {
-
-            connectionInstance = mysql.createPool({
-                uri: 'mysql://root:belamide231@localhost:3306',
-                waitForConnections: true,
-                connectionLimit: 10,
-                queueLimit: 0
-            });        
-    
-        } else {
-
-            connectionInstance = mysql.createPool({
-                uri: process.env.MYSQL_PUBLIC_URL,
-                waitForConnections: true,
-                connectionLimit: 10,
-                queueLimit: 0
-            });    
-
-        }
+        const connectionInstance = mysql.createPool({
+            uri: process.env.LOCAL ? 'mysql://root:belamide231@localhost:3306' : process.env.MYSQL_PUBLIC_URL,
+            waitForConnections: true,
+            connectionLimit: 10,
+            queueLimit: 0
+        });    
 
         await connectionInstance.promise().query(`CREATE DATABASE IF NOT EXISTS railway;`);      
         console.log(await connectionInstance.promise().query(`SHOW DATABASES;`));    
