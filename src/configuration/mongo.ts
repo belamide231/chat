@@ -12,7 +12,7 @@ const connectToMongo = async () => {
         await client.connect();
         const db: Db = client.db(dbName);
         getMongoConnection = db.collection('clients');
-        console.log("MONGO IS READY");
+        console.log("CONNECTED TO MONGO");
     } catch (error) {
         console.error("Error connecting to MongoDB:", error);
         process.exit();

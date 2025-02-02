@@ -14,14 +14,17 @@ dontenv.config();
 
 import { getMysqlConnection } from './configuration/mysql';
 import { getRedisConnection } from './configuration/redis';
+import { getSqliteConnection } from './configuration/sqlite';
 import { controller } from './controllers/controller';
 import { connection } from './sockets/connection';
 import { socketClientsInterface } from './interfaces/socketClientsInterface';
-// import { getMongoConnection } from './configuration/mongo';
+import { observeDropbox } from './utilities/dropboxRenewer';
 
-// export const mongo = getMongoConnection;
+
+export const sqlite = getSqliteConnection();
 export const mysql = getMysqlConnection();
 export const redis = new getRedisConnection();
+export const dropbox: Record<string, string> = {};
 
 const app = express();
 const store = MemoryStore(session);
@@ -47,6 +50,7 @@ export const cookieOptions: CookieOptions = {
     path: '/',
 };
 
+// observeDropbox();
 app.use(cookieParser());
 app.use(json());
 app.use(urlencoded({ 
@@ -76,6 +80,6 @@ app.use(express.static(path.join(__dirname, '../public/browser')));
 io.on('connection', connection);
 
 (async () => {
-    if(mysql && await redis.con.ping()) 
+    if(mysql && await redis.con.ping() && sqlite) 
         server.listen(process.env.LOCAL ? 3000 : process.env.PORT, () => console.log(`RUNNING ON PORT: ${process.env.LOCAL ? '3000' : process.env.PORT}`));
 })();

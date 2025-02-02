@@ -17,7 +17,7 @@ export class getRedisConnection {
         try {
 
             await this.con.connect();
-            console.log('REDIS IS READY');
+            console.log('CONNECTED TO REDIS');
         } catch (error) {
 
             console.log(error);

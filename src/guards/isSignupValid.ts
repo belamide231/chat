@@ -10,8 +10,6 @@ export const isSignupValid = async (req: Request, res: Response, next: NextFunct
     if(email === null)  
         return res.redirect('/login');
 
-    console.log(email);
-
     const data = await redis.con.get(email);
     if(data === null)
         return res.redirect('/login');

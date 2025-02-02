@@ -14,7 +14,7 @@ export const getMysqlConnection = () => {
             queueLimit: 0
         });    
 
-        console.log("MYSQL IS READY");
+        console.log("CONNECTED TO MYSQL");
         return connectionInstance;
 
     } catch(error) {

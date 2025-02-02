@@ -42,3 +42,52 @@
     END LOOP;
     CLOSE cur;
   END;;
+
+
+
+
+
+
+
+
+
+{
+
+  -- FOR URL GENERATION
+  set APP_KEY=tz60lnca9m7pr1i
+  set REDIRECT_URI=http://localhost
+  set STATE=12345
+  echo "https://www.dropbox.com/oauth2/authorize?client_id=%APP_KEY%&response_type=code&token_access_type=offline&redirect_uri=%REDIRECT_URI%&state=%STATE%"
+
+  -- AFTER ECHOING YOU GET THIS
+  -- OUTPUT EXAMPLE: "https://www.dropbox.com/oauth2/authorize?client_id=tz60lnca9m7pr1i&response_type=code&token_access_type=offline&redirect_uri=http://localhost&state=12345"
+  -- THEN BROWSE THE OUTPUT
+
+  -- TO GET THIS URL
+  http://localhost/?code=cwVhGKw-8PoAAAAAAAAAY0M4cD4RFhxOQ2Y-_uJkIRU&state=12345
+
+  -- THEN TAKE THE CODE AS QUERY
+  cwVhGKw-8PoAAAAAAAAAY0M4cD4RFhxOQ2Y-_uJkIRU
+
+  -- THEN SET IT IN THE AUTHORIZATION
+  set AUTHORIZATION_CODE=cwVhGKw-8PoAAAAAAAAAY0M4cD4RFhxOQ2Y-_uJkIRU
+  set APP_SECRET=j8bxoeqyz2y2d6g
+
+  -- THEN FETCH THIS
+  curl -X POST https://api.dropbox.com/oauth2/token ^
+  -d code=%AUTHORIZATION_CODE% ^
+  -d grant_type=authorization_code ^
+  -d client_id=%APP_KEY% ^
+  -d client_secret=%APP_SECRET% ^
+  -d redirect_uri=%REDIRECT_URI%
+  -- AND AFTHER THAT TAKE THE ACCESS_TOKEN
+  
+  -- THEN TAKE THE REFRESH TOKEN OF THE OUTPUT AND SET IT IN HERE
+  set REFRESH_TOKEN=tXO5C6ech_IAAAAAAAAAAV8Q6FiMnb-ZoQ2EkhnB-0t2wht0QPMpb6EOJVqfM15T
+  curl -X POST https://api.dropbox.com/oauth2/token ^
+  -d refresh_token=%REFRESH_TOKEN% ^
+  -d grant_type=refresh_token ^
+  -d client_id=%APP_KEY% ^
+  -d client_secret=%APP_SECRET%
+
+}
