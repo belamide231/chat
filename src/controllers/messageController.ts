@@ -7,12 +7,20 @@ import { isAuthenticated } from "../guards/isAuthenticated";
 import { getMessageDto } from "../dto/messageController/getMessageDto";
 import { seenChatDto } from "../dto/messageController/seenChatDto";
 import { loadChatListDto } from "../dto/messageController/loadChatListDto";
+import { upload } from "../utilities/multer";
+import { dropboxUpload } from "../utilities/dropbox";
 
 export const messageController = Router();
 
-messageController.post('/insertMessage', isAuthenticated, async (req: Request, res: Response): Promise<any> => {
+messageController.post('/insertMessage', isAuthenticated, upload.single('file'), dropboxUpload, async (req: Request, res: Response): Promise<any> => {
+    //if(req.file) {
+    //    req.body.contentType = 'file';
+    //    req.body.content = req.file.filename;
+    //}
 
-    return res.sendStatus(await insertMessageService(req.body as insertMessageDto, (req.user as any).id));
+    //return res.sendStatus(await insertMessageService(req.body as insertMessageDto, (req.user as any).id));
+
+    return res.sendStatus(200);
 });
 
 messageController.post('/getActiveClients', isAuthenticated, async (req: Request, res: Response): Promise<any> => {

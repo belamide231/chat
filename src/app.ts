@@ -9,23 +9,24 @@ import http from 'http';
 import cookieParser from 'cookie-parser';
 import Chance from 'chance';
 import { Server } from 'socket.io';
+import { Dropbox } from 'dropbox';
 
 dontenv.config();
 
 import { getMysqlConnection } from './configuration/mysql';
 import { getRedisConnection } from './configuration/redis';
-import { getSqliteConnection } from './configuration/sqlite';
 import { controller } from './controllers/controller';
 import { connection } from './sockets/connection';
 import { socketClientsInterface } from './interfaces/socketClientsInterface';
-import { observeDropbox } from './utilities/dropboxRenewer';
+import { getLevelConnection } from './configuration/level';
+import { refresher } from './configuration/refresher';
 
-
-export const sqlite = getSqliteConnection();
+export const tmp = path.join(__dirname, '../tmp');
+export const level = getLevelConnection();
 export const mysql = getMysqlConnection();
 export const redis = new getRedisConnection();
-export const dropbox: Record<string, string> = {};
-
+export const dropbox: any = {};
+  
 const app = express();
 const store = MemoryStore(session);
 const server = http.createServer(app);
@@ -50,7 +51,7 @@ export const cookieOptions: CookieOptions = {
     path: '/',
 };
 
-// observeDropbox();
+refresher();
 app.use(cookieParser());
 app.use(json());
 app.use(urlencoded({ 
@@ -80,6 +81,6 @@ app.use(express.static(path.join(__dirname, '../public/browser')));
 io.on('connection', connection);
 
 (async () => {
-    if(mysql && await redis.con.ping() && sqlite) 
+    if(mysql && await redis.con.ping()) 
         server.listen(process.env.LOCAL ? 3000 : process.env.PORT, () => console.log(`RUNNING ON PORT: ${process.env.LOCAL ? '3000' : process.env.PORT}`));
 })();
