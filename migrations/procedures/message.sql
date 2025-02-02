@@ -15,7 +15,7 @@ CREATE PROCEDURE insert_message(IN in_sent_at DATETIME, IN in_content_type VARCH
 BEGIN
 
   DECLARE init_sent_at DATETIME;
-  SET init_sent_at = COALESCE(in_sent_at, CURRENT_TIMESTAMP);
+  SET init_sent_at = COALESCE(in_sent_at, NOW());
   
   INSERT INTO tbl_messages(sent_at, content_type, content, sender_id, receiver_id) VALUES (init_sent_at, in_content_type, in_content, in_sender_id, in_receiver_id);  
   
@@ -101,39 +101,36 @@ END;;
 
 CREATE PROCEDURE get_chat_list(IN in_chat_list_length INT, IN in_user INT)
 BEGIN
-
-  DECLARE max INT;
   DECLARE done INT DEFAULT 0;
   DECLARE in_chatmate_id INT;
-  DECLARE cur CURSOR FOR SELECT chatmate_id FROM tbl_chatmates_id ORDER BY chatmate_id ASC;
-  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
-  
-  DROP TEMPORARY TABLE IF EXISTS tbl_chatmates_id;
-  CREATE TEMPORARY TABLE tbl_chatmates_id(chatmate_id INT);
-  
-  INSERT INTO tbl_chatmates_id(chatmate_id)
-  SELECT
-    CASE
-      WHEN sender_id != in_user THEN sender_id
-      ELSE receiver_id
-    END AS chatmate_id
-  FROM tbl_messages_head
-  WHERE in_user IN(sender_id, receiver_id)
-  ORDER BY sent_at DESC LIMIT 15 OFFSET in_chat_list_length;
+  DECLARE cur CURSOR FOR 
+    SELECT
+      CASE
+        WHEN sender_id != in_user THEN sender_id
+        ELSE receiver_id
+      END AS chatmate_id
+    FROM tbl_messages_head
+    WHERE in_user IN(sender_id, receiver_id)
+    ORDER BY sent_at DESC
+    LIMIT 15 OFFSET in_chat_list_length;
 
-  SET max = IF(in_chat_list_length = 0, 15, 1);
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 
   OPEN cur;
+
   read_loop: LOOP
     FETCH cur INTO in_chatmate_id;
     IF done THEN
       LEAVE read_loop;
     END IF;
-     CALL load_messages(0, in_user, in_chatmate_id, max);
+    
+    CALL load_messages(0, in_user, in_chatmate_id, IF(in_chat_list_length = 0, 15, 1));
+    
   END LOOP;
-  CLOSE cur;
 
+  CLOSE cur;
 END;;
+
 
 
 
