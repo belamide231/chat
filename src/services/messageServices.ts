@@ -10,7 +10,7 @@ import { validRoles } from "../validations/validRoles";
 
 export const insertMessageService = async (data: insertMessageDto, senderId: number): Promise<number> => {
     if(isNaN(data.receiverId) || !validContentType.includes(data.contentType!) || !data.content)
-        return 401;
+        return 400;
 
     try {
 

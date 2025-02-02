@@ -10,9 +10,11 @@ export const dropboxUpload = async (req: Request, res: Response, next: NextFunct
         try {
 
             await fs.promises.access(req.file.path);
-            const response = await dropbox.connection.filesUpload({ path: '/chat-app/' + req.file.filename, contents: req.file.path });
+            const response = await dropbox.connection.filesUpload({ path: '/chat-app/' + req.file.filename, contents: fs.readFileSync(req.file.path), mode: 'add' });
+            const sharedLink = await dropbox.connection.sharingCreateSharedLinkWithSettings({ path: response.result.path_lower });
+
             req.body.contentType = 'file';
-            req.body.content = 'https://www.dropbox.com/home' + response.path_display;
+            req.body.content = sharedLink.result.url;
             fs.unlinkSync(req.file.path);
 
         } catch(error) {

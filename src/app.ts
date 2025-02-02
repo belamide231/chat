@@ -8,8 +8,8 @@ import path from 'path';
 import http from 'http';
 import cookieParser from 'cookie-parser';
 import Chance from 'chance';
+import fs from 'fs';
 import { Server } from 'socket.io';
-import { Dropbox } from 'dropbox';
 
 dontenv.config();
 
@@ -26,6 +26,8 @@ export const level = getLevelConnection();
 export const mysql = getMysqlConnection();
 export const redis = new getRedisConnection();
 export const dropbox: any = {};
+
+fs.mkdirSync(tmp, { recursive: true });
   
 const app = express();
 const store = MemoryStore(session);
