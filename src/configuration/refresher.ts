@@ -41,6 +41,8 @@ const observeDropbox = async () => {
         await level.put('token',  token);
         await level.put('expiry', (duration + Date.now()).toString());
         expiry = duration;
+        console.log("FETCHED DROPBOX ACCESS TOKEN");
+
 
     }, expiry);
 }
@@ -55,11 +57,13 @@ export const refresher = async () => {
         await level.put('token', token);
         await level.put('expiry', (duration + Date.now()).toString());
         expiry = duration;
+        console.log("FETCHED DROPBOX ACCESS TOKEN");
         
     } else {
         
         dropbox.connection = new Dropbox({ accessToken: data[0], fetch });
         expiry = parseInt(data[1]) - Date.now();
+        console.log("REUSING DROPBOX ACCESS TOKEN");
     }
     
     observeDropbox();
