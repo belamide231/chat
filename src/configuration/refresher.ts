@@ -48,9 +48,9 @@ const observeDropbox = async () => {
 }
 
 export const refresher = async () => {
-    const data = await level.getMany(['token', 'expiry']);
+    const data = await level.getMany(['token', 'expiry']) as any;
 
-    if((!data[0] && !data[0]) || parseInt(data[1]) < Date.now()) {
+    if((!data[0] && !data[0]) && (!isNaN(data[1]) && parseInt(data[1]) < Date.now())) {
 
         const token = await renewAccessToken();
         dropbox.connection = new Dropbox({ accessToken: token, fetch });
