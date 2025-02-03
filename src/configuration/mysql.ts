@@ -7,12 +7,12 @@ export const getMysqlConnection = () => {
 
     let uri = 'mysql://root:belamide231@localhost:3306';
 
-    try {
+    if(process.env.CLOUD_BASE)
+        uri = process.env.MYSQL_PUBLIC_URL as string;
+    //if(process.env.CLOUD_HOST)
+    //    uri = process.env.MYSQL_URL as string;
 
-        if(process.env.CLOUD_BASE)
-            uri = process.env.MYSQL_PUBLIC_URL as string;
-        if(process.env.CLOUD_HOST)
-            uri = process.env.MYSQL_URL as string;
+    try {
 
         const connectionInstance = mysql.createPool({
             uri,

@@ -8,8 +8,8 @@ const dropDatabase = async () => {
 
     if(process.env.CLOUD_BASE)
         uri = process.env.MYSQL_PUBLIC_URL;
-    if(process.env.CLOUD_HOST)
-        uri = process.env.MYSQL_URL;
+    //if(process.env.CLOUD_HOST)
+    //    uri = process.env.MYSQL_URL;
 
     try {
         
