@@ -42,17 +42,17 @@ const startMigrations = async () => {
         await recursion(connectionInstance, fs.readFileSync(path.join(__dirname, './procedures/account.sql'), 'utf-8').split(';;'));
 
         // INITIALS
-        //await recursion(connectionInstance, fs.readFileSync(path.join(__dirname, 'initials.sql'), 'utf-8').split(';'));
+        await recursion(connectionInstance, fs.readFileSync(path.join(__dirname, 'initials.sql'), 'utf-8').split(';'));
         
         await connectionInstance.end();
 
-        console.log("MIGRATING DATABASE SUCCESS");
+        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " MIGRATING DATABASE SUCCESS");
         process.exit();
 
 
     } catch (error) {
 
-        console.log("MIGRATING DATABASE FAILED");
+        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " MIGRATING DATABASE FAILED");
         console.log(error);
         process.exit();
 

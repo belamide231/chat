@@ -16,12 +16,12 @@ const dropDatabase = async () => {
         await connectionInstance.promise().query(`DROP DATABASE IF EXISTS ${process.env.MYSQL_DATABASE};`);                  
         await connectionInstance.end();
 
-        console.log("DATABASE DROPPED SUCCESSFULLY");
+        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " DATABASE DROPPED SUCCESSFULLY");
         process.exit();
 
     } catch (error) {
         
-        console.log("DATABASE DROP FAILED");
+        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " DATABASE DROP FAILED");
         console.log(error);
         process.exit();
     }
