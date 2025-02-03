@@ -5,20 +5,29 @@ dotenv.config();
 
 export const getMysqlConnection = () => {
 
+    let uri = 'mysql://root:belamide231@localhost:3306';
+
     try {
 
+        if(process.env.CLOUD_BASE)
+            uri = process.env.MYSQL_PUBLIC_URL as string;
+        if(process.env.CLOUD_HOST)
+            uri = process.env.MYSQL_URL as string;
+
         const connectionInstance = mysql.createPool({
-            uri: process.env.LOCAL ? 'mysql://root:belamide231@localhost:3306/' + process.env.MYSQL_DATABASE : process.env.MYSQL_URL + '/' + process.env.MYSQL_DATABASE,
+            uri,
+            database: process.env.MYSQL_DATABASE,
             waitForConnections: true,
             connectionLimit: 10,
             queueLimit: 0
-        });    
+        });
 
         console.log(process.env.LOCAL ? 'LOCAL' : 'CLOUD' + ' CONNECTED TO MYSQL');
         return connectionInstance;
 
     } catch(error) {
 
+        console.log("MYSQL ERROR");
         console.log(error);
         process.exit();
     }

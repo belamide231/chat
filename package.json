@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "npm run build && node ./dist/app.js",
+    "start": "npm run migrations-restart && npm run build && node ./dist/app.js",
     "dev": "nodemon ./src/app.ts",
     "build": "tsc",
     "serve": "node ./src/app.ts",
-    "connection-test": "node ./migrations/connection-test.js",
     "migrations-up": "node ./migrations/migrations-up.js",
     "migrations-down": "node ./migrations/migrations-down.js",
     "migrations-restart": "npm run migrations-down && npm run migrations-up"

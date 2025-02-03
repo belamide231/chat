@@ -19,10 +19,17 @@ const recursion = async (connectionInstance, sql) => {
 
 const startMigrations = async () => {
 
+    let uri = 'mysql://root:belamide231@localhost:3306';
+
+    if(process.env.CLOUD_BASE)
+        uri = process.env.MYSQL_PUBLIC_URL;
+    if(process.env.CLOUD_HOST)
+        uri = process.env.MYSQL_URL;
+
     try {
 
         const connectionInstance = mysql.createPool({
-            uri: process.env.LOCAL ? 'mysql://root:belamide231@localhost:3306' : process.env.MYSQL_PUBLIC_URL,
+            uri,
             waitForConnections: true,
             connectionLimit: 10,
             queueLimit: 0
@@ -45,17 +52,15 @@ const startMigrations = async () => {
         await recursion(connectionInstance, fs.readFileSync(path.join(__dirname, 'initials.sql'), 'utf-8').split(';'));
         
         await connectionInstance.end();
-
         console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " MIGRATING DATABASE SUCCESS");
-        process.exit();
-
 
     } catch (error) {
 
-        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " MIGRATING DATABASE FAILED");
         console.log(error);
-        process.exit();
-
+        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " MIGRATING DATABASE FAILED");
     }
+
+    process.exit();
 };
+
 startMigrations();

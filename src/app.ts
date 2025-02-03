@@ -84,5 +84,5 @@ io.on('connection', connection);
 
 (async () => {
     if(mysql && await redis.con.ping()) 
-        server.listen(process.env.LOCAL ? 3000 : process.env.PORT, () => console.log(`RUNNING ON PORT: ${process.env.LOCAL ? '3000' : process.env.PORT}`));
+        server.listen(process.env.CLOUD_HOST ? process.env.PORT : 3000, () => console.log(`RUNNING ON PORT: ${process.env.LOCAL ? process.env.PORT : '3000'}`));
 })();

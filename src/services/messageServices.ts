@@ -25,7 +25,7 @@ export const insertMessageService = async (data: insertMessageDto, senderId: num
         return 200;
 
     } catch {
-
+        console.log("MYSQL ERROR");
         return 500;
     }
 }
@@ -87,6 +87,7 @@ export const loadChatListServices = async (id: number, data: loadChatListDto): P
 
     } catch(error) {
 
+        console.log("MYSQL ERROR");
         return { status: 500, result: null };
     }
 }
@@ -102,6 +103,7 @@ export const loadMessageService = async (data: getMessageDto, userId: number): P
 
     } catch {
 
+        console.log("MYSQL ERROR");
         return { status: 500, result: null }
     }
 }
@@ -117,6 +119,7 @@ export const loadMessagesService = async (userId: number, data: getConversationD
 
     } catch {
 
+        console.log("MYSQL ERROR");
         return { status: 500, result: null };
     }
 }
@@ -132,6 +135,7 @@ export const seenChatService = async (userId: number, data: seenChatDto): Promis
 
     } catch {
 
+        console.log("MYSQL ERROR");
         return 500;
     }
 }

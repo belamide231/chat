@@ -20,6 +20,7 @@ export class getRedisConnection {
             console.log(process.env.LOCAL ? 'LOCAL' : 'CLOUD' + ' CONNECTED TO REDIS');
         } catch (error) {
 
+            console.log("REDIS ERROR");
             console.log(error);
             process.exit();
         }
