@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "npm run migrations-restart && npm run build && node ./dist/app.js",
+    "start": "npm install && npm run migrations-restart && npm run build && node ./dist/app.js",
     "dev": "nodemon ./src/app.ts",
     "build": "tsc",
     "serve": "node ./src/app.ts",
