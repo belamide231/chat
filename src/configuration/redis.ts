@@ -17,7 +17,7 @@ export class getRedisConnection {
         try {
 
             await this.con.connect();
-            console.log('CONNECTED TO REDIS');
+            console.log(process.env.LOCAL ? 'LOCAL' : 'CLOUD' + ' CONNECTED TO REDIS');
         } catch (error) {
 
             console.log(error);

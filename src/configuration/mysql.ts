@@ -14,7 +14,7 @@ export const getMysqlConnection = () => {
             queueLimit: 0
         });    
 
-        console.log("CONNECTED TO MYSQL");
+        console.log(process.env.LOCAL ? 'LOCAL' : 'CLOUD' + ' CONNECTED TO MYSQL');
         return connectionInstance;
 
     } catch(error) {
