@@ -18,11 +18,11 @@ pageController.get('/login', hasToken, (req: Request, res: Response): void => {
 pageController.get('/invite', isInvited);
 
 pageController.get('/sign-up', isSignupValid, (_: Request, res: Response): any => {    
-    return res.status(200).sendFile(path.join(__dirname, '../testPages/signup.html'));
+    return res.status(200).sendFile(path.join(__dirname, '../../pages/signup.html'));
 });
 
 pageController.get('/chat', isAuthenticated, (_: Request, res: Response): any => {
-    return res.status(200).sendFile(path.join(__dirname, '../testPages/chat.html'));
+    return res.status(200).sendFile(path.join(__dirname, '../../pages/chat.html'));
 });
 
 pageController.get(['/', 'users', 'notification', 'settings', 'profile'], isAuthenticated, (req: Request, res: Response): any => {

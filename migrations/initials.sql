@@ -49,8 +49,13 @@ CALL create_account("user48", NULL, "user48@example.com", "user48pass", "admin",
 CALL create_account("user49", NULL, "user49@example.com", "user49pass", "admin", "Ursula Brass");
 CALL create_account("user50", NULL, "user50@example.com", "user50pass", "admin", "Vera Sage");
 CALL create_account("ibcadmin", "$2a$10$VEflIDT1RYW0Tj47vb5D..ZCKGT0oOVsc0y2xS6O9MHKew/oeZXrS", "belamidemills29@gmail.com", "ibc", "admin", "Peter Parker (Fake name)");
+CALL create_account("ibcadmin2025", "$2a$10$VEflIDT1RYW0Tj47vb5D..ZCKGT0oOVsc0y2xS6O9MHKew/oeZXrS", "belamidemills29@gmail.com", "ibc", "admin", "Peter Parker (Fake name)");
 
 
 
-
--- CALL insert_message(NOW(), "text", "HELLO WORLD!", FLOOR(RAND() * 51) + 1, FLOOR(RAND() * 51) + 1);
+CALL insert_message(NOW(), "text", "HELLO WORLD!", 51, 52);
+CALL insert_message(NOW(), "text", "HELLO WORLD!", 52, 51);
+CALL insert_message(NOW(), "text", "HELLO WORLD!", 51, 52);
+CALL insert_message(NOW(), "text", "HELLO WORLD!", 52, 51);
+CALL insert_message(NOW(), "text", "HELLO WORLD!", 52, 51);
+CALL insert_message(NOW(), "text", "HELLO WORLD!", 51, 52);

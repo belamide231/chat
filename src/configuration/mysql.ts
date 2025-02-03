@@ -9,8 +9,6 @@ export const getMysqlConnection = () => {
 
     if(process.env.CLOUD_BASE)
         uri = process.env.MYSQL_PUBLIC_URL as string;
-    //if(process.env.CLOUD_HOST)
-    //    uri = process.env.MYSQL_URL as string;
 
     try {
 
@@ -22,7 +20,7 @@ export const getMysqlConnection = () => {
             queueLimit: 0
         });
 
-        console.log(process.env.LOCAL ? 'LOCAL' : 'CLOUD' + ' CONNECTED TO MYSQL');
+        console.log(`CONNECTED TO MYSQL ${process.env.CLOUD_BASE ? 'CLOUD' : 'LOCAL'}`);
         return connectionInstance;
 
     } catch(error) {

@@ -8,8 +8,6 @@ const dropDatabase = async () => {
 
     if(process.env.CLOUD_BASE)
         uri = process.env.MYSQL_PUBLIC_URL;
-    //if(process.env.CLOUD_HOST)
-    //    uri = process.env.MYSQL_URL;
 
     try {
         
@@ -23,11 +21,11 @@ const dropDatabase = async () => {
         await connectionInstance.promise().query(`DROP DATABASE IF EXISTS ${process.env.MYSQL_DATABASE};`);                  
         await connectionInstance.end();
 
-        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " DATABASE DROPPED SUCCESSFULLY");
+        console.log(process.env.CLOUD_BASE ? "LOCAL" : "CLOUD" + " DATABASE DROPPED SUCCESSFULLY");
 
     } catch (error) {
         
-        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " DATABASE DROP FAILED");
+        console.log(process.env.CLOUD_BASE ? "LOCAL" : "CLOUD" + " DATABASE DROP FAILED");
         console.log(error);
     }
 

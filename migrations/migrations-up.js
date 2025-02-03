@@ -23,8 +23,6 @@ const startMigrations = async () => {
 
     if(process.env.CLOUD_BASE)
         uri = process.env.MYSQL_PUBLIC_URL;
-    //if(process.env.CLOUD_HOST)
-    //    uri = process.env.MYSQL_URL;
 
     try {
 
@@ -52,12 +50,12 @@ const startMigrations = async () => {
         await recursion(connectionInstance, fs.readFileSync(path.join(__dirname, 'initials.sql'), 'utf-8').split(';'));
         
         await connectionInstance.end();
-        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " MIGRATING DATABASE SUCCESS");
+        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " DATABASE MIGRATED SUCCESSESFULLY");
 
     } catch (error) {
 
         console.log(error);
-        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " MIGRATING DATABASE FAILED");
+        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " DATABASE MIGRATION FAILED");
     }
 
     process.exit();

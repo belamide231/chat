@@ -15,11 +15,12 @@ dontenv.config();
 
 import { getMysqlConnection } from './configuration/mysql';
 import { getRedisConnection } from './configuration/redis';
-import { controller } from './controllers/controller';
 import { connection } from './sockets/connection';
 import { socketClientsInterface } from './interfaces/socketClientsInterface';
 import { getLevelConnection } from './configuration/level';
 import { refresher } from './configuration/refresher';
+import { messageController } from './controllers/messageController';
+import { accountController } from './controllers/accountController';
 
 export const tmp = path.join(__dirname, '../tmp');
 export const level = getLevelConnection();
@@ -77,7 +78,8 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(controller);
+app.use(messageController);
+app.use(accountController);
 app.use(express.static(path.join(__dirname, '../public/browser')));
 
 io.on('connection', connection);
