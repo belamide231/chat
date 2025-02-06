@@ -29,19 +29,21 @@ export const level = getLevelConnection();
 export const mysql = getMysqlConnection();
 export const redis = new getRedisConnection();
 export const dropbox: any = {};
+export const events: any = {};
 
 fs.mkdirSync(tmp, { recursive: true });
-  
+
+const origin = [
+    'http://localhost:4200',
+    'http://localhost:3000'
+];
 const app = express();
 const store = MemoryStore(session);
 const server = http.createServer(app);
 export const chance = new Chance();
 export const io = new Server(server, {
     cors: {
-        origin: [
-            'http://localhost:4200',
-            'http://localhost:3000'
-        ],
+        origin,
         methods: ['POST', 'GET'],
         credentials: true
     }
@@ -62,17 +64,16 @@ export const cookieOptions: CookieOptions = {
     path: '/',
 };
 
+
 refresher();
-app.use(cookieParser())
+app
+.use(cookieParser())
 .use(json())
 .use(urlencoded({ 
     extended: true 
 }))
 .use(cors({
-    origin: [
-        'http://localhost:4200',
-        'http://localhost:3000'
-    ],
+    origin,
     credentials: true
 }))
 .set("trust proxy", 1)
