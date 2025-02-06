@@ -23,9 +23,11 @@ export const connection = async (socket: Socket): Promise<any> => {
     const id = client.sub;
 
     try {
+        
         await redis.con.set('db4:' + id.toString(), client.sid, { EX: 60 * 60 });
 
     } catch {
+
         return;
     }
     

@@ -18,16 +18,11 @@ END;;
 CREATE PROCEDURE login_account(IN in_user VARCHAR(99))
 BEGIN
 
-    SET @id = 0;
     SELECT id, password INTO @id, @password FROM tbl_users WHERE user = in_user LIMIT 1;
 
-    IF @id = 0 THEN
-        SELECT @id as id;
-    ELSE
-        SELECT role INTO @role FROM tbl_roles WHERE user_id = @id LIMIT 1;
-        SELECT first_name, picture INTO @name, @picture FROM tbl_profiles WHERE user_id = @id LIMIT 1;
-        SELECT @id AS id, @password AS password, @role AS role, @name AS name, @picture AS picture;
-    END IF;
+    SELECT role, company_name INTO @role, @company_name FROM tbl_roles WHERE user_id = @id LIMIT 1;
+    SELECT first_name, picture INTO @name, @picture FROM tbl_profiles WHERE user_id = @id LIMIT 1;
+    SELECT @id AS id, @password AS password, @role AS role, @company_name AS company, @name AS name, @picture AS picture;
 
 END;;
 

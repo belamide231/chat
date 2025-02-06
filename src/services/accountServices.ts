@@ -1,28 +1,41 @@
 import { createAccountDTO } from "../dto/accountController/createAccountDto";
 import { mysql, redis } from "../app";
-import { generateInvitationToken, generateRefreshToken } from "../utilities/jwt";
+import { generateAccessToken, generateInvitationToken, generateRefreshToken } from "../utilities/jwt";
 import { nodeMailer } from "../utilities/nodemailer";
 import { inviteToSignupDto } from "../dto/accountController/inviteToSignupDto";
 import { loginAccountDto } from "../dto/accountController/loginAccountDto";
 import { comparePassword } from "../utilities/bcrypt";
 
-export const loginAccountService = async (data: loginAccountDto): Promise<{ status: number, rtk: string | null }> => {
+//export const loginAccountService = async (data: loginAccountDto): Promise<any> => { // MAO NING TINUOD
+export const loginAccountService = async (data: loginAccountDto, sid: string): Promise<any> => { // TEMPORARY RANI PARA DEVELOPMENT
+
     if(!data.username || !data.password)
-        return { status: 401, rtk: null };
+        return { status: 401 };
 
-    const result = (await mysql.promise().query(`CALL login_account(?)`, [data.username]) as any)[0][0][0];
-    if(result.id === 0) 
-        return { status: 404, rtk: null };
+    try {
 
-    const match = await comparePassword(data.password, result.password);
-    if(!match)
-        return { status: 400, rtk: null };
+        const result = (await mysql.promise().query(`CALL login_account(?)`, [data.username]) as any)[0][0][0];
+        if(result.id === 0) 
+            return { status: 404 };
+    
+        const match = await comparePassword(data.password, result.password);
+        if(!match)
+            return { status: 400 };
+    
+        const atk = generateAccessToken(sid, result.id, result.name, result.company, result.role, result.picture);
+        const rtk = generateRefreshToken(result.id, result.name, result.company, result.role, result.picture);
+        if(!rtk)
+            return { status: 500 }
+            
+        return { status: 200, rtk, atk };
 
-    const rtk = generateRefreshToken(result.id, result.name, result.role, result.picture);
-    if(!rtk)
+    } catch (error) {
+
+        console.log("MYSQL ERROR");
+        console.log(error);
+
         return { status: 500, rtk: null }
-        
-    return { status: 200, rtk: rtk };
+    }
 }
 
 export const createAccountService = async (data: createAccountDTO) => {

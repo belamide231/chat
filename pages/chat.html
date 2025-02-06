@@ -207,220 +207,33 @@
   </div>
 
   <script>
-    const socket = io("http://localhost:3000");
     const url = 'http://localhost:3000/';
+    const socket = io(url);
+    let chatList = [];
 
-  
-    const messagesDiv = document.getElementById("messages");
-    const messageInput = document.getElementById("messageInput");
-    const sendButton = document.getElementById("sendButton");
-    const userList = document.getElementById("userList");
-    const chatListItems = document.getElementById("chatListItems");
-    let conversationData = [];
-    let chatmateId = 1;
-    const chatListData = [];
-  
-    const renderChatList = () => {
-      chatListItems.innerHTML = "";
-      chatListData.forEach((chat, index) => {
-        const li = document.createElement("li");
-        li.classList.add(chat.status);
-        li.innerHTML = `
-          <div class="name">${chat.name}</div>
-          <div class="message">${chat.latestMessage}</div>
-          <div class="timestamp">${chat.timestamp}</div>
-        `;
-  
-        li.setAttribute("data-index", index);
-  
-        li.addEventListener("click", () => {
-          const conversationIndex = li.getAttribute("data-index");
-          chatmateId = conversationData[conversationIndex][0]['chatmate_id'];
-          renderConversation(conversationIndex);
-        });
-  
-        chatListItems.appendChild(li);
-      });
-    };
-  
-    const renderConversation = (index) => {
-      if (!conversationData[index]) {
-        return;
-      }
-
-    
-      console.log(conversationData[index]);
-      chatmateId = parseInt(conversationData[index][0].chatmate_id);
-      messagesDiv.innerHTML = "";
-  
-      const conversation = conversationData[index].reverse();
-  
-      const chatmateName = conversation[0]?.chatmate || conversation[0]?.name || "Chatmate";
-      const chatboxTitle = document.querySelector("#chatBox h1");
-      chatboxTitle.textContent = chatmateName;
-  
-
-      conversation.forEach((message) => {
-        const isYours = message.sender_id === 1;
-        addMessage(
-          {
-            message: message.content,
-            timestamp: new Date(message.sent_at).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-          },
-          isYours
-        );
-      });
-    };
-  
-    // Render online users
-    const renderUsers = (users) => {
-      userList.innerHTML = "";
-      users.forEach((user) => {
-        const li = document.createElement("li");
-        li.textContent = user.name;
-        userList.appendChild(li);
-      });
-    };
-  
-    // Add a message to the chatbox
-    const addMessage = (message, isYours = false) => {
-      const messageElement = document.createElement("div");
-      messageElement.classList.add("message", isYours ? "yours" : "chatmate");
-      messageElement.textContent = message.message;
-  
-      const timestamp = document.createElement("span");
-      timestamp.classList.add("timestamp");
-      timestamp.textContent = `${message.timestamp}`;
-  
-      messageElement.appendChild(timestamp);
-      messagesDiv.appendChild(messageElement);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    };
-  
-    // Fetch active users
-    const getActives = async () => {
-      await fetch(url + "getActiveClients", {
-        method: "post",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          renderUsers(data);
-        })
-        .catch((error) => console.error("Fetch error:", error));
-    };
-  
-    const getChatList = async () => {
-      await fetch(url + "getConversationsHeads", {
-        method: "post",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-      .then((response) => response.json())
-      .then((data) => {
-        chatListData.length = 0;
-        conversationData = data;
-        data.forEach((conversation) => {
-          if (conversation.length > 0) {
-            const firstMessage = conversation[0];
-            chatListData.push({
-              name: firstMessage.chatmate || firstMessage.name,
-              latestMessage: firstMessage.content,
-              timestamp: new Date(firstMessage.sent_at).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              }),
-              status: firstMessage.content_seen ? "seen" : "unseen",
-            });
-          }
-        });
-        renderChatList();
-      })
-      .catch((error) => console.error("Fetch error:", error));
-    };
-  
-    socket.on("connected", async () => {
-      await getActives();
-      await getChatList();
-      renderConversation(0);
-    });
-  
-    socket.on("disconnected", async () => {
-      await getActives();
-    });
-  
-    socket.on("chatMessage", (data) => {
-      addMessage(
-        {
-          message: `${data.user}: ${data.message}`,
-          timestamp: new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        },
-        data.user === "You"
-      );
-    });
-
-    const getMessage = async (data) => {
-      fetch(url + "getMessage", {
+    const loadChatList = async () => {
+      fetch(url + 'loadChatList', {
         method: 'POST',
-        body: JSON.stringify({
-          messageId: data.messageId
-        }),
+        body: JSON.stringify({ chatListLength: chatList.length }),
         headers: {
           'Content-Type': 'application/json'
         }
-      }).then(response => response.json())
+      })
+      .then(response => response.json())
       .then(response => {
-        console.log(response);
-      })
-      .catch(error => {
-        console.log(error);
-      })
-    }
-
-    socket.on('newmessage', async (data) => await getMessage(JSON.parse(data)));
-
-    const sendMessage = async (message) => {
-      fetch(url + "insertMessage", {
-        method: 'POST',
-        body: JSON.stringify({
-          contentType: 'text',
-          content: message,
-          receiverId: chatmateId
-        }),
-        headers: {
-          'Content-Type': 'application/json'
+        if(response.length !== 0) {
+          chatList = response;
+          console.log(JSON.stringify(response)); // THIS LOGS A NESTED ARRAY
         }
-      }).then(data => {
-        // console.log(data)
-      }).catch(error => {
-        console.log(error);
       })
+      .catch(error => console.log(error));
     }
-  
-    sendButton.addEventListener("click", async () => {
-      const message = messageInput.value.trim();
-      if (message) {
-        await sendMessage(message);
-      }
+
+    socket.on('connected', async () => {
+      await loadChatList();
+      console.log('connected');
     });
-  
-    messageInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        sendButton.click();
-      }
-    });
-  
-    getActives();
-    getChatList();
+
   </script>
 
 </body>

@@ -12,13 +12,14 @@ accountController.post('/invite', async (req: Request, res: Response): Promise<a
 });
 
 accountController.post('/loginAccount', async (req: Request, res: Response): Promise<any> => {
-    const response = await loginAccountService(req.body as loginAccountDto) as any;
+    //const response = await loginAccountService(req.body as loginAccountDto) as any;
+    const response = await loginAccountService(req.body as loginAccountDto, req.sessionID) as any; // THIS ONE IS TEMPORARY
 
     if(response.status !== 200) 
-        return res.status(response.status).json({ message: 'Login Invalid' });
+        return res.status(response.status);
 
-    res.cookie('rtk', response.rtk, cookieOptions);
-    return res.status(response.status).json({ message: 'Login Successful' });
+    res.cookie('atk', response.atk, cookieOptions); // TEMPORARY
+    return res.cookie('rtk', response.rtk, cookieOptions).sendStatus(response.status);
 });
 
 accountController.post('/logoutAccount', async (req: Request, res: Response): Promise<any> => {
@@ -26,14 +27,13 @@ accountController.post('/logoutAccount', async (req: Request, res: Response): Pr
     try {
 
         await redis.con.del(req.sessionID);
-        res.clearCookie('rtk').clearCookie('atk');
 
     } catch {
         
         return res.sendStatus(500);
     }
 
-    return res.status(200).json({ message: 'Cookie cleared, logged out successfully' });
+    return res.clearCookie('rtk').clearCookie('atk').status(200).json({ message: 'Cookie cleared, logged out successfully' });
     
 });
 
