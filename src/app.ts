@@ -4,7 +4,7 @@ import session from 'express-session';
 import passport from 'passport';
 import cors from 'cors';
 import dontenv from 'dotenv';
-import path from 'path';
+import path, { parse } from 'path';
 import http from 'http';
 import cookieParser from 'cookie-parser';
 import Chance from 'chance';
@@ -15,11 +15,14 @@ dontenv.config();
 
 import { getMysqlConnection } from './configuration/mysql';
 import { getRedisConnection } from './configuration/redis';
-import { controller } from './controllers/controller';
 import { connection } from './sockets/connection';
 import { socketClientsInterface } from './interfaces/socketClientsInterface';
 import { getLevelConnection } from './configuration/level';
 import { refresher } from './configuration/refresher';
+import { messageController } from './controllers/messageController';
+import { accountController } from './controllers/accountController';
+import { pageController } from './controllers/pageController';
+import { companyController } from './controllers/companyController';
 
 export const tmp = path.join(__dirname, '../tmp');
 export const level = getLevelConnection();
@@ -35,7 +38,12 @@ const server = http.createServer(app);
 export const chance = new Chance();
 export const io = new Server(server, {
     cors: {
-        origin: '*'
+        origin: [
+            'http://localhost:4200',
+            'http://localhost:3000'
+        ],
+        methods: ['POST', 'GET'],
+        credentials: true
     }
 });
 export const socketClients: socketClientsInterface = {
@@ -45,6 +53,7 @@ export const socketClients: socketClientsInterface = {
     superUsersId: [],
     usersId: []
 };
+export const sids: Record<string, string> = {}
 export const cookieOptions: CookieOptions = {
     httpOnly: true,
     secure: false,
@@ -54,17 +63,20 @@ export const cookieOptions: CookieOptions = {
 };
 
 refresher();
-app.use(cookieParser());
-app.use(json());
-app.use(urlencoded({ 
+app.use(cookieParser())
+.use(json())
+.use(urlencoded({ 
     extended: true 
-}));
-app.use(cors({
-    origin: '*',
+}))
+.use(cors({
+    origin: [
+        'http://localhost:4200',
+        'http://localhost:3000'
+    ],
     credentials: true
-}));
-app.set("trust proxy", 1);
-app.use(session({ 
+}))
+.set("trust proxy", 1)
+.use(session({ 
     secret: process.env.SESSION_SECRET ? process.env.SESSION_SECRET : 'secret',
     store: new store({
         checkPeriod: 86400000
@@ -74,15 +86,18 @@ app.use(session({
     cookie: { 
         secure: false 
     } 
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(controller);
-app.use(express.static(path.join(__dirname, '../public/browser')));
-
+}))
+.use(passport.initialize())
+.use(passport.session())
+.use(pageController)
+.use(messageController)
+.use(accountController)
+.use(companyController)
+.use(express.static(path.join(__dirname, '../public/browser')));
+  
 io.on('connection', connection);
 
 (async () => {
     if(mysql && await redis.con.ping()) 
-        server.listen(process.env.LOCAL ? 3000 : process.env.PORT, () => console.log(`RUNNING ON PORT: ${process.env.LOCAL ? '3000' : process.env.PORT}`));
+        server.listen(process.env.CLOUD_HOST ? process.env.PORT : 3000, () => console.log(`RUNNING ON PORT: ${process.env.CLOUD_HOST ? process.env.PORT : '3000'}`));
 })();

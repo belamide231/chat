@@ -1,0 +1,14 @@
+    (async () => {
+      const errorMessages = {
+        404: 'Username did not exists',
+        401: 'Unauthorized',
+        400: 'Incorrect password', 
+        500: 'Internal server error',
+      } as any;
+      this.http.post(dns + 'loginAccount', { username: this.username, password: this.password }, { headers: { 'Content-Type': 'application/json' }, withCredentials: true , observe: 'response' })
+      .subscribe(response => {
+        window.location.href = '/';
+      }, error => {
+        this.errorMessage = errorMessages[error.status] || 'An Error Occured';
+      });    
+    })();    

@@ -20,6 +20,7 @@ export const dropboxUpload = async (req: Request, res: Response, next: NextFunct
         } catch(error) {
 
             console.log(error);
+            console.log("DROPBOX ERROR");
             fs.unlinkSync(req.file.path);
             return res.sendStatus(400);
         }

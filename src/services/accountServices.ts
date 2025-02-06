@@ -6,24 +6,52 @@ import { inviteToSignupDto } from "../dto/accountController/inviteToSignupDto";
 import { loginAccountDto } from "../dto/accountController/loginAccountDto";
 import { comparePassword } from "../utilities/bcrypt";
 
-export const loginAccountService = async (data: loginAccountDto): Promise<{ status: number, rtk: string | null }> => {
+export const loginAccountService = async (data: loginAccountDto): Promise<any> => {
     if(!data.username || !data.password)
-        return { status: 401, rtk: null };
+        return { status: 422 };
 
-    const result = (await mysql.promise().query(`CALL login_account(?)`, [data.username]) as any)[0][0][0];
-    if(result.id === 0) 
-        return { status: 404, rtk: null };
+    try {
 
-    const match = await comparePassword(data.password, result.password);
-    if(!match)
-        return { status: 400, rtk: null };
+        const result = (await mysql.promise().query(`CALL login_account(?)`, [data.username]) as any)[0][0][0];
+        if(result.id === null) 
+            return { status: 404 };
+    
+        const match = await comparePassword(data.password, result.password);
+        if(!match)
+            return { status: 401 };
+    
+        const rtk = generateRefreshToken(result.id, result.name, result.company, result.role, result.picture);
+        if(!rtk)
+            return { status: 500 }
+            
+        return { status: 200, rtk };
 
-    const rtk = generateRefreshToken(result.id, result.name, result.role, result.picture);
-    if(!rtk)
+    } catch (error) {
+
+        console.log("MYSQL ERROR");
+        console.log(error);
+
         return { status: 500, rtk: null }
-        
-    return { status: 200, rtk: rtk };
+    }
 }
+
+
+export const logoutAccountService = async (sid: string): Promise<number> => {
+    try {
+
+        await redis.con.del(sid);
+
+    } catch (error) {
+
+        console.log("REDIS ERROR");
+        console.log(error);
+
+        return 500;
+    }
+    
+    return 200;
+}
+
 
 export const createAccountService = async (data: createAccountDTO) => {
 

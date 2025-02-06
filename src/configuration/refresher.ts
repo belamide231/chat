@@ -41,25 +41,29 @@ const observeDropbox = async () => {
         await level.put('token',  token);
         await level.put('expiry', (duration + Date.now()).toString());
         expiry = duration;
+        console.log("FETCHED DROPBOX ACCESS TOKEN");
+
 
     }, expiry);
 }
 
 export const refresher = async () => {
-    const data = await level.getMany(['token', 'expiry']);
+    const data = await level.getMany(['token', 'expiry']) as any;
 
-    if((!data[0] && !data[0]) || parseInt(data[1]) < Date.now()) {
+    if(!data[0] || !data[1] || isNaN(data[1]) || parseInt(data[1]) < Date.now()) {
 
         const token = await renewAccessToken();
         dropbox.connection = new Dropbox({ accessToken: token, fetch });
         await level.put('token', token);
         await level.put('expiry', (duration + Date.now()).toString());
         expiry = duration;
+        console.log("FETCHED DROPBOX ACCESS TOKEN");
         
     } else {
         
         dropbox.connection = new Dropbox({ accessToken: data[0], fetch });
         expiry = parseInt(data[1]) - Date.now();
+        console.log("REUSING DROPBOX ACCESS TOKEN");
     }
     
     observeDropbox();

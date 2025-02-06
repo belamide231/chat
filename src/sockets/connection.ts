@@ -7,6 +7,8 @@ import { verifyAccessToken } from '../utilities/jwt';
 
 export const connection = async (socket: Socket): Promise<any> => {
 
+    console.log("SOMEONE IS CONNECTING");
+
     const cookies = socket.request.headers.cookie;
     if(!cookies)
         return;
@@ -23,9 +25,11 @@ export const connection = async (socket: Socket): Promise<any> => {
     const id = client.sub;
 
     try {
+        
         await redis.con.set('db4:' + id.toString(), client.sid, { EX: 60 * 60 });
 
     } catch {
+
         return;
     }
     

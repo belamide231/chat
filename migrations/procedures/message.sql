@@ -54,7 +54,7 @@ BEGIN
       SELECT first_name AS name FROM tbl_profiles WHERE user_id = sender_id LIMIT 1
     ) AS sender, receiver_id, (
       SELECT first_name AS name FROM tbl_profiles WHERE user_id = receiver_id LIMIT 1
-    ), content_seen, seen_at, company_name
+    ), content_status, seen_at, company_name
     FROM tbl_messages
     WHERE (sender_id = in_user_id AND receiver_id = $user_id)
     ORDER BY sent_at DESC
@@ -66,7 +66,7 @@ BEGIN
         SELECT first_name AS name FROM tbl_profiles WHERE user_id = sender_id LIMIT 1
       ) AS sender, receiver_id, (
         SELECT first_name AS name FROM tbl_profiles WHERE user_id = receiver_id LIMIT 1
-      ) AS receiver, content_seen, seen_at, company_name
+      ) AS receiver, content_status, seen_at, company_name
     FROM tbl_messages
     WHERE in_user_id IN (sender_id, receiver_id)
     AND in_chatmate_id IN (sender_id, receiver_id)
@@ -90,7 +90,7 @@ BEGIN
     SELECT first_name FROM tbl_profiles WHERE user_id = sender_id
   ) AS sender, receiver_id, (
     SELECT first_name FROM tbl_profiles WHERE user_id = receiver_id
-  ) AS receiver, content_seen, seen_at, company_name  
+  ) AS receiver, content_status, seen_at, company_name  
   FROM tbl_messages 
   WHERE (
     in_user_id IN(sender_id, receiver_id) AND in_chatmate_id IN(sender_id, receiver_id)
@@ -186,7 +186,7 @@ BEGIN
       content, 
       sender_id, 
       receiver_id, 
-      content_seen,
+      content_status,
       seen_at
     )
     SELECT
@@ -196,7 +196,7 @@ BEGIN
       t1.content,
       t1.sender_id,
       t1.receiver_id,
-      t1.content_seen,
+      t1.content_status,
       t1.seen_at
     FROM tbl_messages AS t1
     JOIN temp_selected_messages_id AS t2
@@ -269,7 +269,7 @@ BEGIN
       SELECT first_name FROM tbl_profiles WHERE user_id = sender_id
     ) AS sender, receiver_id, (
       SELECT first_name FROM tbl_profiles WHERE user_id = chatmate_id
-    ) AS receiver, content_seen, seen_at, company_name
+    ) AS receiver, content_status, seen_at, company_name
   FROM tbl_messages
   WHERE id = in_user_id;
 
@@ -281,13 +281,12 @@ BEGIN
 
   SET @timestamp = CURRENT_TIMESTAMP;
 
-
   UPDATE tbl_messages 
-  SET content_seen = 1, seen_at = CURRENT_TIMESTAMP 
+  SET content_status = "seen", seen_at = CURRENT_TIMESTAMP 
   WHERE 
     in_user_id IN (sender_id, receiver_id) 
     AND in_chatmate_id IN (sender_id, receiver_id) 
-    AND content_seen = 0 
+    AND content_status = "delivered"
     AND sender_id = in_chatmate_id;
 
 END;;

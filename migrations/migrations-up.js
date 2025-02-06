@@ -4,25 +4,31 @@ const fs = require('fs');
 const path = require('path');
 dotenv.config();
 
+let c = 0;
 const recursion = async (connectionInstance, sql) => {
 
     await connectionInstance.promise().query(sql[0]);
     sql.shift();
+    c++;
+    console.log(c);
 
-    if(sql.length !== 1) {
-
-        await recursion(connectionInstance, sql);
-    }
+    if(sql.length !== 1) 
+        return recursion(connectionInstance, sql);
 
     return;
 }
 
 const startMigrations = async () => {
 
+    let uri = 'mysql://root:belamide231@localhost:3306';
+
+    if(process.env.CLOUD_BASE)
+        uri = process.env.MYSQL_PUBLIC_URL;
+
     try {
 
         const connectionInstance = mysql.createPool({
-            uri: process.env.LOCAL ? 'mysql://root:belamide231@localhost:3306' : process.env.MYSQL_PUBLIC_URL,
+            uri,
             waitForConnections: true,
             connectionLimit: 10,
             queueLimit: 0
@@ -45,17 +51,15 @@ const startMigrations = async () => {
         await recursion(connectionInstance, fs.readFileSync(path.join(__dirname, 'initials.sql'), 'utf-8').split(';'));
         
         await connectionInstance.end();
-
-        console.log("MIGRATING DATABASE SUCCESS");
-        process.exit();
-
+        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " DATABASE MIGRATED SUCCESSESFULLY");
 
     } catch (error) {
 
-        console.log("MIGRATING DATABASE FAILED");
         console.log(error);
-        process.exit();
-
+        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " DATABASE MIGRATION FAILED");
     }
+
+    process.exit();
 };
+
 startMigrations();

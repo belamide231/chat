@@ -23,15 +23,15 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
     
         const sid = req.sessionID;
         const payload = rtk.payload as any;
-        const refreshToken = generateRefreshToken(payload.sub, payload.name, payload.role, payload.picture);
-        const accessToken = generateAccessToken(sid, payload.sub, payload.name, payload.role, payload.picture);
+        const refreshToken = generateRefreshToken(payload.sub, payload.name, payload.company, payload.role, payload.picture);
+        const accessToken = generateAccessToken(sid, payload.sub, payload.name, payload.company, payload.role, payload.picture);
         payload.id = payload.sub;
     
-        res.cookie('rtk', refreshToken, cookieOptions);
-        res.cookie('atk', accessToken, cookieOptions);
-    
+        res.cookie('rtk', refreshToken, cookieOptions).cookie('atk', accessToken, cookieOptions);
+        
         user['id'] = payload.sub;
         user['name'] = payload.name;
+        user['company'] = payload.company;
         user['role'] = payload.role;
         user['picture'] = payload.picture;
 
@@ -55,6 +55,7 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
         const payload = atk.payload as any;
         user['id'] = payload.sub;
         user['name'] = payload.name;
+        user['company'] = payload.company;
         user['role'] = payload.role;
         user['picture'] = payload.picture;
     }

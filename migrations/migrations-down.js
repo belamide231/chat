@@ -4,10 +4,15 @@ dotenv.config();
 
 const dropDatabase = async () => {
 
-    try {
+    let uri = 'mysql://root:belamide231@localhost:3306';
 
+    if(process.env.CLOUD_BASE)
+        uri = process.env.MYSQL_PUBLIC_URL;
+
+    try {
+        
         const connectionInstance = mysql.createPool({
-            uri: process.env.LOCAL ? 'mysql://root:belamide231@localhost:3306' : process.env.MYSQL_PUBLIC_URL,
+            uri,
             waitForConnections: true,
             connectionLimit: 10,
             queueLimit: 0
@@ -16,14 +21,14 @@ const dropDatabase = async () => {
         await connectionInstance.promise().query(`DROP DATABASE IF EXISTS ${process.env.MYSQL_DATABASE};`);                  
         await connectionInstance.end();
 
-        console.log("DATABASE DROPPED SUCCESSFULLY");
-        process.exit();
+        console.log(process.env.CLOUD_BASE ? "LOCAL" : "CLOUD" + " DATABASE DROPPED SUCCESSFULLY");
 
     } catch (error) {
         
-        console.log("DATABASE DROP FAILED");
+        console.log(process.env.CLOUD_BASE ? "LOCAL" : "CLOUD" + " DATABASE DROP FAILED");
         console.log(error);
-        process.exit();
     }
+
+    process.exit();
 };
 dropDatabase();

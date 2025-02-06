@@ -38,7 +38,7 @@ CREATE TABLE tbl_messages (
     content VARCHAR(7999),
     sender_id INT,
     receiver_id INT,
-    content_seen TINYINT DEFAULT 0,
+    content_status VARCHAR(20) DEFAULT "delivered",
     seen_at DATETIME DEFAULT NULL,
     company_name VARCHAR(99),
     FOREIGN KEY(sender_id) REFERENCES tbl_users(id),
@@ -77,7 +77,7 @@ CREATE TABLE tbl_messages_logs (
     content VARCHAR(7999),
     sender_id INT,
     receiver_id INT,
-    content_seen TINYINT DEFAULT 0,
+    content_status VARCHAR(20),
     seen_at DATETIME DEFAULT NULL,
     company_name VARCHAR(99),
     FOREIGN KEY(head_id) REFERENCES tbl_messages_head_logs(id),
@@ -102,3 +102,17 @@ CREATE TABLE tbl_tickets (
     FOREIGN KEY(user_id) REFERENCES tbl_users(id),
     FOREIGN KEY(agent_id) REFERENCES tbl_users(id)
 );
+
+CREATE TABLE tbl_company_theme (
+    company VARCHAR(99),
+    primary_color VARCHAR(20),
+    secondary_color VARCHAR(20),
+    accent_color VARCHAR(20),
+    whites_color VARCHAR(20)
+);
+
+INSERT INTO tbl_company_theme(company, primary_color, secondary_color, accent_color, whites_color) 
+VALUES
+("ibc", "#000000", "#FFFFFF", "#FF0305", "#ffffff"),
+("jet", "#000000", "#FFFFFF", "#FF0305", "#ffffff"),
+("gis", "#1e1e1e", "#adb4b7", "#ffc641", "#ffffff");

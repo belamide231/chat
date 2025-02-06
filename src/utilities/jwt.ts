@@ -4,7 +4,7 @@ dotenv.config();
 
 const timestamp = () => Math.floor(Date.now() / 1000);
 
-export const generateRefreshToken = (id: number, name: string, role: string, picture: string | null) => {
+export const generateRefreshToken = (id: number, name: string, company: string ,role: string, picture: string | null) => {
 
     const privateKey = process.env.JWT_REFRESH_SECRET;
     return privateKey ? jwt.sign({ 
@@ -15,6 +15,7 @@ export const generateRefreshToken = (id: number, name: string, role: string, pic
         aud: 'app-api',
         name,
         role,
+        company,
         picture
     }, privateKey, {
         algorithm: 'HS256'
@@ -44,7 +45,7 @@ export const verifyRefreshToken = (token: string) => {
 }
 
 
-export const generateAccessToken = (sid: string, id: number, name: string, role: string, picture: string | null) => {
+export const generateAccessToken = (sid: string, id: number, name: string, company: string, role: string, picture: string | null) => {
 
     const privateKey = process.env.JWT_ACCESS_SECRET;
     return privateKey ? jwt.sign({ 
@@ -56,6 +57,7 @@ export const generateAccessToken = (sid: string, id: number, name: string, role:
         aud: 'app-api',
         name,
         role,
+        company,
         picture
     }, privateKey, {
         algorithm: 'HS256'
