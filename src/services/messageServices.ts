@@ -46,20 +46,20 @@ export const getActiveClientsService = async (role: string): Promise<{ status: n
             break;
         case 'superUser':
             actives = actives.concat(socketClients.accountsId);
-            break;        
+            break;
         default:
             break;
     }
 
-    if(actives.length === 0) 
+    if(actives.length === 0)
         return { status: 200, result: [] };
 
     const result = await redis.con.mGet([...actives.map((v: any) => 'db4:' + v.toString())]);
     const sids = result.map((v: any) => {
-        if(v !== null) 
+        if(v !== null)
             return v.toString();
     }) as string[];
-    
+
     if(sids.length === 0)
         return { status: 200, result: [] };
 
@@ -82,11 +82,11 @@ export const loadChatListServices = async (id: number, data: loadChatListDto): P
     try {
 
         const result = (await mysql.promise().query('CALL get_chat_list(?, ?)', [data.chatListLength, id]) as any)[0];
-        if(result.fieldCount === 0) 
-            return { status: 200, result: [] };    
+        if(result.fieldCount === 0)
+            return { status: 200, result: { chatList: [], order: [] } };
 
         result.splice(result.length - 1, 1);
-        return { status: 200, result: result };
+        return { status: 200, result: { chatList: result, order: result.map((x: any) => x[0].chatmate_id) } };
 
     } catch(error) {
 
