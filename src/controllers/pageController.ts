@@ -23,6 +23,6 @@ pageController
     return res.status(200).sendFile(path.join(__dirname, '../../pages/signup.html'));
 })
 
-pageController.get(['/', 'users', 'notification', 'settings', 'profile'], isAuthenticated, isAuthorized('admin'), (req: Request, res: Response): any => {
+pageController.get(['/', '/chat', '/users', '/notification', '/settings', '/profile'], isAuthenticated, isAuthorized('admin'), (req: Request, res: Response): any => {
     return res.status(200).sendFile(path.join(__dirname, '../../public/browser/index.html'));
 });
