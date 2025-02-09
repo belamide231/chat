@@ -64,12 +64,12 @@ const startMigrations = async () => {
         await recursion(connectionInstance, initials);
 
         await connectionInstance.end();
-        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " DATABASE MIGRATED SUCCESSESFULLY");
+        console.log(`${process.env.LOCAL ? "LOCAL" : "CLOUD"} DATABASE MIGRATED SUCCESSESFULLY`);
 
     } catch (error) {
 
         console.log(error);
-        console.log(process.env.LOCAL ? "LOCAL" : "CLOUD" + " DATABASE MIGRATION FAILED");
+        console.log(`${process.env.LOCAL ? "LOCAL" : "CLOUD"} DATABASE MIGRATION FAILED`);
     }
 
     process.exit();
