@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "npm install && node ./initialize/dnsInitializer.js && npm run migrations-restart && npm run build && cd ../front && npm install && ng build --configuration=production && cd ../back && node ./dist/app.js",
+    "start": "npm install && node ./dist/app.js",
     "dev": "nodemon ./src/app.ts",
     "build": "tsc",
+    "production": "npm install && node ./initialize/dnsInitializer.js && npm run migrations-restart && npm run build && cd ../front && npm install && ng build --configuration=production && cd ../back",
     "initialize-dns": "node ./initialize/dnsInitializer.js",
     "serve": "node ./src/app.ts",
     "migrations-up": "node ./migrations/migrations-up.js",
