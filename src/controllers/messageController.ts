@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 
-import { getActiveClientsService, insertMessageService, loadChatListServices, loadMessageService, loadMessagesService, seenChatService } from "../services/messageServices";
-import { insertMessageDto } from "../dto/messageController/insertMessageDto";
+import { getActiveClientsService, sendMessageService, loadChatListServices, loadMessageService, loadMessagesService, seenChatService } from "../services/messageServices";
+import { sendMessageDto } from "../dto/messageController/sendMessageDto";
 import { getConversationDto } from "../dto/messageController/getConversationDto";
 import { isAuthenticated } from "../guards/isAuthenticated";
 import { getMessageDto } from "../dto/messageController/getMessageDto";
@@ -14,8 +14,8 @@ export const messageController = Router();
 messageController
 
 
-.post('/insertMessage', isAuthenticated, upload.single('file'), dropboxUpload, async (req: Request, res: Response): Promise<any> => {
-    return res.sendStatus(await insertMessageService(req.body as insertMessageDto, (req.user as any).id));
+.post('/sendMessage', isAuthenticated, upload.single('file'), dropboxUpload, async (req: Request, res: Response): Promise<any> => {
+    return res.sendStatus(await sendMessageService(req.body as sendMessageDto, (req.user as any).id));
 })
 
 
@@ -38,6 +38,7 @@ messageController
 
 
 .post('/loadMessage', isAuthenticated, async (req: Request, res: Response): Promise<any> => {
+    console.log(req.body);
     const response = await loadMessageService(req.body as getMessageDto, (req.user as any).id);
     return response.status !== 200 ? res.sendStatus(response.status) : res.status(response.status).json(response.result);
 })

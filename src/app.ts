@@ -4,7 +4,7 @@ import session from 'express-session';
 import passport from 'passport';
 import cors from 'cors';
 import dontenv from 'dotenv';
-import path, { parse } from 'path';
+import path from 'path';
 import http from 'http';
 import cookieParser from 'cookie-parser';
 import Chance from 'chance';
@@ -64,8 +64,6 @@ export const cookieOptions: CookieOptions = {
     path: '/',
 };
 
-
-refresher();
 app
 .use(cookieParser())
 .use(json())
@@ -96,6 +94,7 @@ app
 .use(companyController)
 .use(express.static(path.join(__dirname, '../public/browser')));
   
+refresher();
 io.on('connection', connection);
 
 (async () => {

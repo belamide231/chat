@@ -1,4 +1,4 @@
-export interface insertMessageDto {
+export interface sendMessageDto {
     contentType: string;
     content: string;
     receiverId: number;

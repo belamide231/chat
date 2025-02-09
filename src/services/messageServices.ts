@@ -1,14 +1,14 @@
 import { mysql, socketClients, io, redis } from "../app";
 import { getConversationDto } from "../dto/messageController/getConversationDto";
 import { getMessageDto } from "../dto/messageController/getMessageDto";
-import { insertMessageDto } from "../dto/messageController/insertMessageDto";
+import { sendMessageDto } from "../dto/messageController/sendMessageDto";
 import { loadChatListDto } from "../dto/messageController/loadChatListDto";
 import { seenChatDto } from "../dto/messageController/seenChatDto";
 import { validContentType } from "../validations/validContentType";
 import { validRoles } from "../validations/validRoles";
 
 
-export const insertMessageService = async (data: insertMessageDto, senderId: number): Promise<number> => {
+export const sendMessageService = async (data: sendMessageDto, senderId: number): Promise<number> => {
     if(isNaN(data.receiverId) || !validContentType.includes(data.contentType!) || !data.content)
         return 400;
 
@@ -19,8 +19,7 @@ export const insertMessageService = async (data: insertMessageDto, senderId: num
         let socketIds: string[] = [];
         socketIds = socketIds.concat(socketClients.clientConnections[senderId]);
         socketIds = socketIds.concat(socketClients.clientConnections[data.receiverId!]);
-
-        socketIds.forEach((v) => io.to(v).emit('newmessage', JSON.stringify({ receiverId: result.receiver_id, messageId: result.message_id })));
+        socketIds.forEach((v) => io.to(v).emit('new message', result.message_id ));
 
         return 200;
 
@@ -100,6 +99,8 @@ export const loadMessageService = async (data: getMessageDto, userId: number): P
         return { status: 400, result: null };
 
     try {
+
+        console.log(data.messageId);
 
         const result = (await mysql.promise().query('CALL get_message(?, ?);', [data.messageId, userId]) as any)[0][0][0];
         return { status: 200, result: result }

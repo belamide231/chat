@@ -45,7 +45,7 @@ export const connection = async (socket: Socket): Promise<any> => {
       break;
   }
 
-  io.emit("connected");
+  io.to(socket.id).emit('connected');
 
   socket.on("disconnect", async () => {
     socketClients.clientConnections[id].splice(
