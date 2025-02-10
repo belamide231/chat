@@ -24,9 +24,7 @@ export const connection = async (socket: Socket): Promise<any> => {
     return;
   }
 
-  socketClients.clientConnections[id]
-    ? socketClients.clientConnections[id].push(socket.id)
-    : (socketClients.clientConnections[id] = [socket.id]);
+  socketClients.clientConnections[id] ? socketClients.clientConnections[id].push(socket.id) : (socketClients.clientConnections[id] = [socket.id]);
 
   switch (client.role) {
     case "admin":
@@ -64,16 +62,10 @@ export const connection = async (socket: Socket): Promise<any> => {
           socketClients.adminsId.splice(socketClients.adminsId.indexOf(id), 1);
           break;
         case "account":
-          socketClients.adminsId.splice(
-            socketClients.accountsId.indexOf(id),
-            1,
-          );
+          socketClients.adminsId.splice(socketClients.accountsId.indexOf(id), 1);
           break;
         case "superUser":
-          socketClients.adminsId.splice(
-            socketClients.superUsersId.indexOf(id),
-            1,
-          );
+          socketClients.adminsId.splice(socketClients.superUsersId.indexOf(id), 1);
           break;
         case "user":
           socketClients.adminsId.splice(socketClients.usersId.indexOf(id), 1);

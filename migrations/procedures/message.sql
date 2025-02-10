@@ -290,4 +290,6 @@ BEGIN
     AND content_status = "delivered"
     AND sender_id = in_chatmate_id;
 
+  SELECT @timestamp as timestamp;
+
 END;;

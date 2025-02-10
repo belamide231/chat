@@ -38,7 +38,6 @@ messageController
 
 
 .post('/loadMessage', isAuthenticated, async (req: Request, res: Response): Promise<any> => {
-    console.log(req.body);
     const response = await loadMessageService(req.body as getMessageDto, (req.user as any).id);
     return response.status !== 200 ? res.sendStatus(response.status) : res.status(response.status).json(response.result);
 })

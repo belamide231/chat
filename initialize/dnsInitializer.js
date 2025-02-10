@@ -3,7 +3,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
 
-const dnsValue = process.env.DNS || 'http://localhost:3000';
+const dnsValue = `${process.env.DNS}/` || 'http://localhost:3000';
 const dnsFile = `export const dns = "${dnsValue}";`;
 
 const environmentDir = path.join(__dirname, '../../front/src/environment');

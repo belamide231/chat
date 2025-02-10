@@ -100,10 +100,8 @@ export const loadMessageService = async (data: getMessageDto, userId: number): P
 
     try {
 
-        console.log(data.messageId);
-
         const result = (await mysql.promise().query('CALL get_message(?, ?);', [data.messageId, userId]) as any)[0][0][0];
-        return { status: 200, result: result }
+        return { status: 200, result: result };
 
     } catch {
 
@@ -134,7 +132,14 @@ export const seenChatService = async (userId: number, data: seenChatDto): Promis
 
     try {
 
-        await mysql.promise().query('CALL seen_chat(?, ?)', [userId, data.chatmateId]);
+        const result = (await mysql.promise().query('CALL seen_chat(?, ?)', [userId, data.chatmateId]) as any)[0][0][0];
+
+        result['chatmate_id'] = data.chatmateId;
+        io.to(socketClients.clientConnections[userId]).emit('seen message', result);
+
+        result['chatmate_id'] = userId;
+        io.to(socketClients.clientConnections[data.chatmateId]).emit('seen message', (result));
+
         return 200;
 
     } catch {
