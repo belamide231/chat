@@ -5,4 +5,4 @@ CALL create_account("gisadmin", "$2a$10$36BvogjTCIMw5XVRveaQBuKleEsTSD4ZyXL7d/a/
 
 CALL insert_message(NOW(), "text", "HELLO WORLD!", 1, 2);  
 CALL insert_message(NOW(), "text", "HELLO WORLD!", 1, 3);  
-CALL insert_message(NOW(), "text", "HELLO WORLD!", 2, 3);  
+CALL insert_message(NOW(), "text", "HELLO WORLD!", 2, 3);

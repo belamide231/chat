@@ -33,7 +33,7 @@ export const events: any = {};
 
 fs.mkdirSync(tmp, { recursive: true });
 
-const origin = [
+const origin = process.env.CLOUD_HOST ? process.env.DNS : [
     'http://localhost:4200',
     'http://localhost:3000'
 ];
@@ -44,7 +44,7 @@ const server = http.createServer(app);
 export const chance = new Chance();
 export const io = new Server(server, {
     cors: {
-        origin: process.env.CLOUD_HOST ? process.env.DNS?.slice(0, -1) : origin,
+        origin,
         methods: ['POST', 'GET'],
         credentials: true
     }
