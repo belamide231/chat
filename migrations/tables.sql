@@ -38,7 +38,7 @@ CREATE TABLE tbl_messages (
     content VARCHAR(7999),
     sender_id INT,
     receiver_id INT,
-    content_status VARCHAR(20) DEFAULT "delivered",
+    content_status VARCHAR(20) DEFAULT "sent",
     seen_at DATETIME DEFAULT NULL,
     company_name VARCHAR(99),
     FOREIGN KEY(sender_id) REFERENCES tbl_users(id),

@@ -38,7 +38,6 @@ const origin = [
     'http://localhost:3000'
 ];
 
-console.log(process.env.DNS?.slice(0, -1));
 const app = express();
 const store = MemoryStore(session);
 const server = http.createServer(app);

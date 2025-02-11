@@ -81,8 +81,7 @@ END;;
 
 
 
-
-
+-- WORKING
 CREATE PROCEDURE load_messages(IN in_message_length INT, IN in_user_id INT, IN in_chatmate_id INT, IN in_limit INT)
 BEGIN
   SELECT (
@@ -100,6 +99,18 @@ END;;
 
 
 
+-- WORKING
+CREATE PROCEDURE chat_delivered(IN in_user_id INT, IN in_chatmate_id INT)
+BEGIN
+  SELECT CURRENT_TIMESTAMP;
+  UPDATE tbl_messages
+  SET content_status = "delivered"
+  WHERE receiver_id = in_user_id AND sender_id = in_chatmate_id;
+END;;
+
+
+
+-- WORKING
 CREATE PROCEDURE get_chat_list(IN in_chat_list_length INT, IN in_user INT)
 BEGIN
   DECLARE done INT DEFAULT 0;

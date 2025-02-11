@@ -100,8 +100,6 @@ export const loadMessageService = async (data: getMessageDto, userId: number): P
 
     try {
 
-        console.log(data.messageId);
-
         const result = (await mysql.promise().query('CALL get_message(?, ?);', [data.messageId, userId]) as any)[0][0][0];
         return { status: 200, result: result }
 
